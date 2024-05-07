@@ -1,77 +1,53 @@
 import { bitUtils } from '../utils/bit';
 import { toHexString } from '../utils/to-hex-string';
 
-export class Packet {
-  protected constructor(
-    readonly length: number,
-    readonly id: number,
-    readonly data: Buffer,
-  ) {}
+import { BufferIterator } from './buffer-iterator';
 
-  toBuffer() {
-    const bufferedId = bitUtils.writeVarInt(this.id);
-    const bufferedData = this.data;
-    const bufferedLength = bitUtils.writeVarInt(this.length);
+export abstract class Packet {
+  protected lengthFromHeader = 0;
+  protected _lastOffset = 0;
 
-    return Buffer.concat([bufferedLength, bufferedId, bufferedData]);
-  }
+  protected constructor(readonly id: number) {}
 
   hexId() {
     return toHexString(this.id);
   }
 
-  static fromBuffer(buffer: Buffer) {
-    const { value: packetLength, offset: offsetAfterPacketLength } = bitUtils.readVarInt(buffer);
-
-    const { value: packetId, offset: offsetAfterPacketId } = bitUtils.readVarInt(
-      buffer,
-      offsetAfterPacketLength,
-    );
-
-    return new this(packetLength, packetId, buffer.subarray(offsetAfterPacketId));
+  get length() {
+    return this.lengthFromHeader;
   }
 
-  static create(id: number, ...params: any[]) {
-    const bufferedId = bitUtils.writeVarInt(id);
-    const bufferedData = this.serializeDataList(params);
-    const length = bufferedData.length + bufferedId.length;
-
-    return new this(length, id, bufferedData);
+  get lastOffset() {
+    return this._lastOffset;
   }
 
-  private static serializeData(data: any) {
-    if (data instanceof Buffer) {
-      return data;
-    }
+  protected compact(...data: Buffer[]) {
+    const bufferedData = Array.isArray(data) ? Buffer.concat(data) : data;
+    const bufferedPacketId = bitUtils.writeVarInt(this.id);
+    const bufferedLength = bitUtils.writeVarInt(bufferedData.length + bufferedPacketId.length);
 
-    if (typeof data === 'string') {
-      return bitUtils.writeString(data);
-    }
-
-    if (typeof data === 'number') {
-      return bitUtils.writeVarInt(data);
-    }
-
-    if (typeof data === 'object') {
-      return bitUtils.writeString(JSON.stringify(data));
-    }
-
-    throw new Error(`Unknown data type to serialize: ${typeof data}`);
+    return Buffer.concat([bufferedLength, bufferedPacketId, bufferedData]);
   }
 
-  private static serializeDataList(dataList: any[]) {
-    let bufferedData: Buffer;
+  protected calculateLength(...data: Buffer[]) {
+    const bufferedData = Array.isArray(data) ? Buffer.concat(data) : data;
+    const bufferedPacketId = bitUtils.writeVarInt(this.id);
 
-    if (dataList.length === 1 || !Array.isArray(dataList)) {
-      const data = Array.isArray(dataList) ? dataList[0] : dataList;
+    return bufferedData.length + bufferedPacketId.length;
+  }
 
-      bufferedData = this.serializeData(data);
-    } else {
-      const bufferedDataList = dataList.map(this.serializeData.bind(this));
+  abstract get totalLength(): number;
+  abstract toBuffer(): Buffer;
 
-      bufferedData = Buffer.concat(bufferedDataList);
-    }
+  protected static abstractPacketHeader(buffer: Buffer) {
+    const bufferIterator = new BufferIterator(buffer);
 
-    return bufferedData;
+    const packetLength = bufferIterator.readVarInt();
+    const offsetAfterPacketLength = bufferIterator.lastOffset;
+
+    const packetId = bufferIterator.readVarInt();
+    const offsetAfterPacketId = bufferIterator.lastOffset;
+
+    return { packetLength, packetId, offsetAfterPacketLength, offsetAfterPacketId, bufferIterator };
   }
 }

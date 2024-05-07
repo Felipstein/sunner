@@ -1,3 +1,5 @@
+import { UUID } from '../../shared/value-objects/uuid';
+
 function readVarInt(buffer: Buffer, offset = 0) {
   let numRead = 0;
   let result = 0;
@@ -14,14 +16,40 @@ function readVarInt(buffer: Buffer, offset = 0) {
   return { value: result, offset };
 }
 
-function readString(buffer: Buffer, offset = 0) {
+function readShort(buffer: Buffer, offset = 0) {
+  const value = buffer.readInt16BE(offset);
+
+  return { value, offset: offset + 2 };
+}
+
+function readLong(buffer: Buffer, offset = 0) {
+  const value = buffer.readBigInt64BE(offset);
+
+  return { value, offset: offset + 8 };
+}
+
+function readString(buffer: Buffer, offset = 0, encoding: BufferEncoding = 'utf-8') {
   const lengthInfo = readVarInt(buffer, offset);
   const stringLength = lengthInfo.value;
 
   offset = lengthInfo.offset;
 
-  const stringValue = buffer.toString('utf-8', offset, offset + stringLength);
+  const stringValue = buffer.toString(encoding, offset, offset + stringLength);
   return { value: stringValue, offset: offset + stringLength };
+}
+
+function readUUID(buffer: Buffer, offset = 0) {
+  const uuidBytes = buffer.subarray(offset, offset + 16);
+  const hex = uuidBytes.toString('hex');
+  const uuid = `${hex.substring(0, 8)}-${hex.substring(8, 12)}-${hex.substring(12, 16)}-${hex.substring(16, 20)}-${hex.substring(20)}`;
+
+  return { value: new UUID(uuid), offset: offset + 16 };
+}
+
+function readBytes(buffer: Buffer, length: number, offset = 0) {
+  const value = buffer.subarray(offset, offset + length);
+
+  return { value, offset: offset + length };
 }
 
 function writeVarInt(value: number) {
@@ -41,11 +69,43 @@ function writeVarInt(value: number) {
   return Buffer.from(bytes);
 }
 
-function writeString(value: string) {
-  const buffer = Buffer.from(value, 'utf-8');
+function writeShort(value: number) {
+  const buffer = Buffer.alloc(2);
+  buffer.writeInt16BE(value, 0);
+
+  return buffer;
+}
+
+function writeLong(value: bigint) {
+  const buffer = Buffer.alloc(8);
+  buffer.writeBigInt64BE(value, 0);
+
+  return buffer;
+}
+
+function writeString(value: string, encoding: BufferEncoding = 'utf-8') {
+  const buffer = Buffer.from(value, encoding);
   const length = writeVarInt(buffer.length);
 
   return Buffer.concat([length, buffer]);
 }
 
-export const bitUtils = { readVarInt, readString, writeVarInt, writeString };
+function writeUUID(value: UUID) {
+  const cleanedUUID = value.value.replace(/-/g, '');
+  const buffer = Buffer.from(cleanedUUID, 'hex');
+  return buffer;
+}
+
+export const bitUtils = {
+  readVarInt,
+  readShort,
+  readLong,
+  readString,
+  readUUID,
+  readBytes,
+  writeVarInt,
+  writeShort,
+  writeLong,
+  writeString,
+  writeUUID,
+};

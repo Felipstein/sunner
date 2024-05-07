@@ -34,6 +34,8 @@
     "no-empty-function": "off",
     "no-underscore-dangle": "off",
     "no-restricted-syntax": "off",
+    "lines-between-class-members": "off",
+    "class-methods-use-this": "off",
     "@typescript-eslint/no-useless-constructor": "error",
     "@typescript-eslint/no-empty-function": "error",
     "@typescript-eslint/no-unused-vars": "error",
