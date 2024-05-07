@@ -1,4 +1,5 @@
 import { bitUtils } from '../utils/bit';
+import { toHexString } from '../utils/to-hex-string';
 
 export class Packet {
   private constructor(
@@ -13,6 +14,10 @@ export class Packet {
     const bufferedLength = bitUtils.writeVarInt(this.length);
 
     return Buffer.concat([bufferedLength, bufferedId, bufferedData]);
+  }
+
+  hexId() {
+    return toHexString(this.id);
   }
 
   static fromBuffer(buffer: Buffer) {

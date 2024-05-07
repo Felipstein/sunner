@@ -27,6 +27,7 @@
     "no-plusplus": "off",
     "no-unused-vars": "off",
     "no-bitwise": "off",
+    "no-shadow": "off",
     "no-continue": "off",
     "no-param-reassign": "off",
     "no-useless-constructor": "off",

@@ -3,40 +3,37 @@ import * as net from 'node:net';
 import chalk from 'chalk';
 
 import { config } from './config';
-import { readPacket, readString, readVarInt, toHexString, writeString, writeVarInt } from './utils';
+import { Packet } from './gateway/core/packet';
+import { bitUtils } from './gateway/utils/bit';
 
 const server = net.createServer();
 
 server.on('connection', (socket) => {
   socket.on('data', (data) => {
-    const packet = readPacket(data);
+    const packet = Packet.fromBuffer(data);
 
     console.info(
       chalk.gray('Received packet.'),
-      `Packet ID: ${toHexString(packet.id)}`,
+      `Packet ID: ${packet.hexId()}`,
       chalk.italic(`- ( ${packet.length} bytes )`),
     );
 
     switch (packet.id) {
       case 0x00: {
-        console.log('Handkshake packet.');
+        console.log('Handshake packet.');
 
-        let offset: number;
-
-        const { value: protocolVersion, offset: offsetAfterVersion } = readVarInt(
-          data,
-          packet.offset,
+        const { value: protocolVersion, offset: offsetAfterVersion } = bitUtils.readVarInt(
+          packet.data,
         );
-        offset = offsetAfterVersion;
 
-        const { value: serverAddress, offset: offsetAfterAddress } = readString(data, offset);
-        offset = offsetAfterAddress;
+        const { value: serverAddress, offset: offsetAfterAddress } = bitUtils.readString(
+          packet.data,
+          offsetAfterVersion,
+        );
 
-        const serverPort = data.readUint16BE(offset);
-        offset += 2;
+        const serverPort = packet.data.readUint16BE(offsetAfterAddress);
 
-        const { value: nextState, offset: offsetAfterNextState } = readVarInt(data, offset);
-        offset = offsetAfterNextState;
+        const { value: nextState } = bitUtils.readVarInt(packet.data, offsetAfterAddress + 2);
 
         console.info('Protocol info:');
         console.info('\t- Version:', protocolVersion);
@@ -44,19 +41,13 @@ server.on('connection', (socket) => {
         console.info('\t- Port:', serverPort);
         console.info('\t- NextState:', nextState);
 
-        const responseJson = JSON.stringify({
+        const responsePayload = {
           version: { name: '1.20.4', protocol: protocolVersion },
           players: { max: 4237423674732, online: -5 },
           description: { text: 'Welcome my friendi' },
-        });
-
-        const responseData = writeString(responseJson);
-        const packetId = writeVarInt(packet.id);
-        const length = writeVarInt(responseData.length + packetId.length);
-
-        const response = Buffer.concat([length, packetId, responseData]);
-
-        socket.write(response);
+        };
+        const responsePacket = Packet.create(packet.id, responsePayload);
+        socket.write(responsePacket.toBuffer());
 
         break;
       }
