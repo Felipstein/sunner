@@ -2,7 +2,7 @@ import { bitUtils } from '../utils/bit';
 import { toHexString } from '../utils/to-hex-string';
 
 export class Packet {
-  private constructor(
+  protected constructor(
     readonly length: number,
     readonly id: number,
     readonly data: Buffer,
@@ -28,7 +28,7 @@ export class Packet {
       offsetAfterPacketLength,
     );
 
-    return new Packet(packetLength, packetId, buffer.subarray(offsetAfterPacketId));
+    return new this(packetLength, packetId, buffer.subarray(offsetAfterPacketId));
   }
 
   static create(id: number, ...params: any[]) {
@@ -36,7 +36,7 @@ export class Packet {
     const bufferedData = this.serializeDataList(params);
     const length = bufferedData.length + bufferedId.length;
 
-    return new Packet(length, id, bufferedData);
+    return new this(length, id, bufferedData);
   }
 
   private static serializeData(data: any) {
