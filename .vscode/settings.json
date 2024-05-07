@@ -1,0 +1,14 @@
+{
+  "editor.rulers": [
+    100,
+  ],
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "always",
+    "source.fixAll.eslint": "always",
+    "source.addMissingImports": "always",
+    "source.sortMembers": "always"
+  },
+  "cSpell.words": [
+    "sunner"
+  ]
+}
