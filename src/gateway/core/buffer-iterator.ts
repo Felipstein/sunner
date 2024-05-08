@@ -58,6 +58,14 @@ export class BufferIterator {
     return value;
   }
 
+  readByte() {
+    const { value, offset } = bitUtils.readByte(this._buffer, this.currentOffset);
+
+    this._prevOffset = this.currentOffset;
+    this.currentOffset = offset;
+    return value;
+  }
+
   readBytes(length: number) {
     const { value, offset } = bitUtils.readBytes(this._buffer, length, this.currentOffset);
 
@@ -72,5 +80,13 @@ export class BufferIterator {
     this._prevOffset = this.currentOffset;
     this.currentOffset = offset;
     return JSON.parse(valueInJSON) as T;
+  }
+
+  readBoolean() {
+    const { value, offset } = bitUtils.readBoolean(this._buffer, this.currentOffset);
+
+    this._prevOffset = this.currentOffset;
+    this.currentOffset = offset;
+    return value;
   }
 }

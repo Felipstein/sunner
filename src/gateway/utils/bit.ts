@@ -46,10 +46,22 @@ function readUUID(buffer: Buffer, offset = 0) {
   return { value: new UUID(uuid), offset: offset + 16 };
 }
 
+function readByte(buffer: Buffer, offset = 0) {
+  const value = buffer.readUInt8(offset);
+
+  return { value, offset: offset + 1 };
+}
+
 function readBytes(buffer: Buffer, length: number, offset = 0) {
   const value = buffer.subarray(offset, offset + length);
 
   return { value, offset: offset + length };
+}
+
+function readBoolean(buffer: Buffer, offset = 0) {
+  const value = buffer.readUInt8(offset) !== 0;
+
+  return { value, offset: offset + 1 };
 }
 
 function writeVarInt(value: number) {
@@ -83,6 +95,12 @@ function writeLong(value: bigint) {
   return buffer;
 }
 
+function writeByte(value: number) {
+  const buffer = Buffer.alloc(1);
+  buffer.writeUInt8(value, 0);
+  return buffer;
+}
+
 function writeString(value: string, encoding: BufferEncoding = 'utf-8') {
   const buffer = Buffer.from(value, encoding);
   const length = writeVarInt(buffer.length);
@@ -96,16 +114,26 @@ function writeUUID(value: UUID) {
   return buffer;
 }
 
+function writeBoolean(value: boolean) {
+  const buffer = Buffer.alloc(1);
+  buffer.writeUInt8(value ? 1 : 0, 0);
+  return buffer;
+}
+
 export const bitUtils = {
   readVarInt,
   readShort,
   readLong,
   readString,
   readUUID,
+  readByte,
   readBytes,
+  readBoolean,
   writeVarInt,
   writeShort,
   writeLong,
+  writeByte,
   writeString,
   writeUUID,
+  writeBoolean,
 };

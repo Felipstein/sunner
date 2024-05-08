@@ -10,6 +10,18 @@ export class ConfigurationConnectionHandler extends ConnectionHandler {
   }
 
   override onArrivalPacket(unknownPacket: UnknownPacket) {
-    console.log('configuration:', unknownPacket.hexId());
+    switch (unknownPacket.id) {
+      case 0x00: {
+        // Client Information Packet
+        break;
+      }
+      case 0x01: {
+        // Serverbound Plugin Message Packet
+        break;
+      }
+      default: {
+        console.log(`Unknown packet from ${this.constructor.name} ${unknownPacket.hexId()}`);
+      }
+    }
   }
 }
