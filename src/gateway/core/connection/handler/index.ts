@@ -3,7 +3,7 @@ import { ConnectionState } from '../../../@types/connection-state';
 import { UnknownPacket } from '../../../packets/unknown-packet';
 import { Packet } from '../../packet';
 
-type Reply = (packet: Packet) => void;
+export type Reply = (packet: Packet) => void;
 
 export abstract class ConnectionHandler {
   constructor(
