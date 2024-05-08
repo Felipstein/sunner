@@ -13,17 +13,13 @@ import { PingRequestPacket } from './gateway/packets/ping-request.packet';
 import { PingResponsePacket } from './gateway/packets/ping-response.packet';
 import { StatusResponsePacket } from './gateway/packets/status-response.packet';
 import { UnknownPacket } from './gateway/packets/unknown-packet';
-import {
-  generateVerifyToken,
-  generateServerEncryption,
-  convertDerToPem,
-  decryptData,
-} from './gateway/services/encryption-authentication';
+import { EncryptionAuthenticationService } from './gateway/services/encryption-authentication';
 import { UUID } from './shared/value-objects/uuid';
 
 const server = net.createServer();
 
-const { serverPublicKey, serverPrivateKey } = generateServerEncryption();
+const { publicKey: serverPublicKey, privateKey: serverPrivateKey } =
+  EncryptionAuthenticationService.generateKeyPair();
 
 server.on('connection', (socket) => {
   let currentState: 'HANDSHAKING' | 'STATUS' | 'LOGIN' = 'HANDSHAKING';
@@ -85,7 +81,7 @@ server.on('connection', (socket) => {
                 const compressedPacket = unknownPacket.slice(packet.lastOffset);
 
                 if (compressedPacket.id === 0x00) {
-                  const verifyToken = generateVerifyToken();
+                  const verifyToken = EncryptionAuthenticationService.generateVerifyToken();
                   const responsePacket = new EncryptionRequestPacket(serverPublicKey, verifyToken);
 
                   sendPacket(responsePacket);
@@ -132,7 +128,7 @@ server.on('connection', (socket) => {
       case 'LOGIN': {
         switch (unknownPacket.id) {
           case 0x00: {
-            const verifyToken = generateVerifyToken();
+            const verifyToken = EncryptionAuthenticationService.generateVerifyToken();
             const responsePacket = new EncryptionRequestPacket(serverPublicKey, verifyToken);
 
             sendPacket(responsePacket);
@@ -152,9 +148,15 @@ server.on('connection', (socket) => {
             const packet = EncryptionResponsePacket.fromUnknownPacket(unknownPacket);
 
             try {
-              const privateKeyPem = convertDerToPem(serverPrivateKey, 'private');
+              const privateKeyPem = EncryptionAuthenticationService.convertDerToPem(
+                serverPrivateKey,
+                'private',
+              );
 
-              const verifyToken = decryptData(packet.verifyToken, privateKeyPem);
+              const verifyToken = EncryptionAuthenticationService.decryptData(
+                packet.verifyToken,
+                privateKeyPem,
+              );
               if (!verifyToken.equals(currentVerifyToken)) {
                 throw new Error('Invalid verify token.');
               }
@@ -165,7 +167,10 @@ server.on('connection', (socket) => {
                 ),
               );
 
-              const sharedSecret = decryptData(packet.sharedSecret, privateKeyPem);
+              const sharedSecret = EncryptionAuthenticationService.decryptData(
+                packet.sharedSecret,
+                privateKeyPem,
+              );
 
               console.info(chalk.blue('Enabling cryptography.'));
 
