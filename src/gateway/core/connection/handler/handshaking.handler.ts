@@ -1,14 +1,9 @@
 import { Connection } from '..';
-import { serverKeys } from '../../../../main';
 import { ConnectionState } from '../../../@types/connection-state';
-import { EncryptionRequestPacket } from '../../../packets/encryption-request.packet';
 import { HandshakePacket } from '../../../packets/handshake.packet';
-import { LoginStartPacket } from '../../../packets/login-start.packet';
 import { StatusResponsePacket } from '../../../packets/status-response.packet';
 import { UnknownPacket } from '../../../packets/unknown-packet';
 import { getMCVersionByProtocol, ProtocolVersion } from '../../../protocol-version';
-import { EncryptionAuthenticationService } from '../../../services/encryption-authentication';
-import { EncryptionStage } from '../encryption-stage';
 
 import { ConnectionHandler } from '.';
 
@@ -29,7 +24,6 @@ export class HandshakingConnectionHandler extends ConnectionHandler {
         }
 
         if (handshakePacket.nextState === 2) {
-          this.checkIfHasLoginStartPacketCompressed(unknownPacket, handshakePacket.lastOffset);
           this.connection.changeState(ConnectionState.LOGIN);
           break;
         }
@@ -51,28 +45,5 @@ export class HandshakingConnectionHandler extends ConnectionHandler {
     });
 
     this.reply(statusResponsePacket);
-  }
-
-  private checkIfHasLoginStartPacketCompressed(unknownPacket: UnknownPacket, lastHSOffset: number) {
-    if (unknownPacket.compressed) {
-      const compressedPacket = unknownPacket.slice(lastHSOffset);
-
-      if (compressedPacket.id === 0x00) {
-        const verifyToken = EncryptionAuthenticationService.generateVerifyToken();
-        const encryptionRequestPacket = new EncryptionRequestPacket(
-          serverKeys.publicKey,
-          verifyToken,
-        );
-
-        this.reply(encryptionRequestPacket);
-
-        const loginStartPacket = LoginStartPacket.fromUnknownPacket(compressedPacket);
-        this.connection.encryptionStage = new EncryptionStage({
-          verifyToken,
-          username: loginStartPacket.name,
-          playerUUID: loginStartPacket.playerUUID,
-        });
-      }
-    }
   }
 }

@@ -10,8 +10,8 @@ export class UnknownPacket extends Packet {
     super(id);
   }
 
-  slice(fromOffset: number) {
-    const bufferSliced = this.rawData.subarray(fromOffset);
+  slice(fromOffset: number, toOffset?: number) {
+    const bufferSliced = this.rawData.subarray(fromOffset, toOffset);
 
     return UnknownPacket.fromBuffer(bufferSliced);
   }
