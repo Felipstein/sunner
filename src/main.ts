@@ -1,46 +1,15 @@
-import crypto from 'node:crypto';
 import * as net from 'node:net';
 
 import chalk from 'chalk';
 
 import { config } from './config';
-import { Packet } from './gateway/core/packet';
-import { EncryptionRequestPacket } from './gateway/packets/encryption-request.packet';
-import { EncryptionResponsePacket } from './gateway/packets/encryption-response.packet';
-import { HandshakePacket } from './gateway/packets/handshake.packet';
-import { LoginStartPacket } from './gateway/packets/login-start.packet';
-import { PingRequestPacket } from './gateway/packets/ping-request.packet';
-import { PingResponsePacket } from './gateway/packets/ping-response.packet';
-import { StatusResponsePacket } from './gateway/packets/status-response.packet';
+import { Connection } from './gateway/core/connection';
 import { UnknownPacket } from './gateway/packets/unknown-packet';
-import { EncryptionAuthenticationService } from './gateway/services/encryption-authentication';
-import { UUID } from './shared/value-objects/uuid';
 
 const server = net.createServer();
 
-const { publicKey: serverPublicKey, privateKey: serverPrivateKey } =
-  EncryptionAuthenticationService.generateKeyPair();
-
 server.on('connection', (socket) => {
-  let currentState: 'HANDSHAKING' | 'STATUS' | 'LOGIN' = 'HANDSHAKING';
-
-  let currentVerifyToken: Buffer | null = null;
-  let currentUsername: string | null = null;
-  let currentUUID: UUID | null = null;
-
-  const sendPacket = (packet: Packet) => {
-    console.info(
-      chalk.gray('->> Sent packet\t\t'),
-      `Packet ID: ${chalk.yellow(packet.hexId())}`,
-      '-',
-      chalk.green(currentState),
-      '-',
-      chalk.cyan(packet.constructor.name),
-      chalk.italic(`- ( ${packet.totalLength} bytes )`),
-    );
-
-    socket.write(packet.toBuffer());
-  };
+  const connection = new Connection(socket);
 
   socket.on('data', (data) => {
     const unknownPacket = UnknownPacket.fromBuffer(data);
@@ -49,7 +18,7 @@ server.on('connection', (socket) => {
       chalk.gray('<<- Received packet\t'),
       `Packet ID: ${chalk.yellow(unknownPacket.hexId())}`,
       '-',
-      chalk.green(currentState),
+      chalk.green(connection.state),
       '-',
       chalk.cyan(unknownPacket.constructor.name),
       chalk.italic(`- ( ${unknownPacket.length} bytes )`),
@@ -58,149 +27,151 @@ server.on('connection', (socket) => {
         : '',
     );
 
-    switch (currentState) {
-      case 'HANDSHAKING': {
-        switch (unknownPacket.id) {
-          case 0x00: {
-            const packet = HandshakePacket.fromUnknownPacket(unknownPacket);
+    connection.handler.onArrivalPacket(unknownPacket, connection.sendPacket);
 
-            if (packet.nextState === 1) {
-              const responsePacket = new StatusResponsePacket({
-                version: { name: '1.20.4', protocol: packet.protocolVersion },
-                players: { max: 100, online: 0 },
-                description: { text: 'Welcome my friend!', color: 'gray' },
-              });
-              sendPacket(responsePacket);
+    // switch (currentState) {
+    //   case 'HANDSHAKING': {
+    //     switch (unknownPacket.id) {
+    //       case 0x00: {
+    //         const packet = HandshakePacket.fromUnknownPacket(unknownPacket);
 
-              currentState = 'STATUS';
-              break;
-            }
+    //         if (packet.nextState === 1) {
+    //           const responsePacket = new StatusResponsePacket({
+    //             version: { name: '1.20.4', protocol: packet.protocolVersion },
+    //             players: { max: 100, online: 0 },
+    //             description: { text: 'Welcome my friend!', color: 'gray' },
+    //           });
+    //           sendPacket(responsePacket);
 
-            if (packet.nextState === 2) {
-              if (unknownPacket.compressed) {
-                const compressedPacket = unknownPacket.slice(packet.lastOffset);
+    //           currentState = 'STATUS';
+    //           break;
+    //         }
 
-                if (compressedPacket.id === 0x00) {
-                  const verifyToken = EncryptionAuthenticationService.generateVerifyToken();
-                  const responsePacket = new EncryptionRequestPacket(serverPublicKey, verifyToken);
+    //         if (packet.nextState === 2) {
+    //           if (unknownPacket.compressed) {
+    //             const compressedPacket = unknownPacket.slice(packet.lastOffset);
 
-                  sendPacket(responsePacket);
+    //             if (compressedPacket.id === 0x00) {
+    //               const verifyToken = EncryptionAuthenticationService.generateVerifyToken();
+    //               const responsePacket = new EncryptionRequestPacket(serverPublicKey, verifyToken);
 
-                  const loginStartPacket = LoginStartPacket.fromUnknownPacket(compressedPacket);
-                  currentVerifyToken = verifyToken;
-                  currentUsername = loginStartPacket.name;
-                  currentUUID = loginStartPacket.playerUUID;
-                }
-              }
+    //               sendPacket(responsePacket);
 
-              currentState = 'LOGIN';
-              break;
-            }
+    //               const loginStartPacket = LoginStartPacket.fromUnknownPacket(compressedPacket);
+    //               currentVerifyToken = verifyToken;
+    //               currentUsername = loginStartPacket.name;
+    //               currentUUID = loginStartPacket.playerUUID;
+    //             }
+    //           }
 
-            throw new Error(`Invalid next state: ${packet.nextState}`);
-          }
-          default:
-        }
+    //           currentState = 'LOGIN';
+    //           break;
+    //         }
 
-        break;
-      }
-      case 'STATUS': {
-        switch (unknownPacket.id) {
-          case 0x00: {
-            console.log('eita');
+    //         throw new Error(`Invalid next state: ${packet.nextState}`);
+    //       }
+    //       default:
+    //     }
 
-            break;
-          }
-          case 0x01: {
-            const pingRequestPacket = PingRequestPacket.fromUnknownPacket(unknownPacket);
-            const pingResponsePacket = new PingResponsePacket(pingRequestPacket.payload);
+    //     break;
+    //   }
+    //   case 'STATUS': {
+    //     switch (unknownPacket.id) {
+    //       case 0x00: {
+    //         console.log('eita');
 
-            sendPacket(pingResponsePacket);
+    //         break;
+    //       }
+    //       case 0x01: {
+    //         const pingRequestPacket = PingRequestPacket.fromUnknownPacket(unknownPacket);
+    //         const pingResponsePacket = new PingResponsePacket(pingRequestPacket.payload);
 
-            break;
-          }
-          default:
-            console.log('Unknown packet from Status.');
-        }
+    //         sendPacket(pingResponsePacket);
 
-        break;
-      }
-      case 'LOGIN': {
-        switch (unknownPacket.id) {
-          case 0x00: {
-            const verifyToken = EncryptionAuthenticationService.generateVerifyToken();
-            const responsePacket = new EncryptionRequestPacket(serverPublicKey, verifyToken);
+    //         break;
+    //       }
+    //       default:
+    //         console.log('Unknown packet from Status.');
+    //     }
 
-            sendPacket(responsePacket);
+    //     break;
+    //   }
+    //   case 'LOGIN': {
+    //     switch (unknownPacket.id) {
+    //       case 0x00: {
+    //         const verifyToken = EncryptionAuthenticationService.generateVerifyToken();
+    //         const responsePacket = new EncryptionRequestPacket(serverPublicKey, verifyToken);
 
-            const loginStartPacket = LoginStartPacket.fromUnknownPacket(unknownPacket);
-            currentVerifyToken = verifyToken;
-            currentUsername = loginStartPacket.name;
-            currentUUID = loginStartPacket.playerUUID;
+    //         sendPacket(responsePacket);
 
-            break;
-          }
-          case 0x01: {
-            if (!currentVerifyToken) {
-              throw new Error('You client loses some important packets, try again.');
-            }
+    //         const loginStartPacket = LoginStartPacket.fromUnknownPacket(unknownPacket);
+    //         currentVerifyToken = verifyToken;
+    //         currentUsername = loginStartPacket.name;
+    //         currentUUID = loginStartPacket.playerUUID;
 
-            const packet = EncryptionResponsePacket.fromUnknownPacket(unknownPacket);
+    //         break;
+    //       }
+    //       case 0x01: {
+    //         if (!currentVerifyToken) {
+    //           throw new Error('You client loses some important packets, try again.');
+    //         }
 
-            try {
-              const privateKeyPem = EncryptionAuthenticationService.convertDerToPem(
-                serverPrivateKey,
-                'private',
-              );
+    //         const packet = EncryptionResponsePacket.fromUnknownPacket(unknownPacket);
 
-              const verifyToken = EncryptionAuthenticationService.decryptData(
-                packet.verifyToken,
-                privateKeyPem,
-              );
-              if (!verifyToken.equals(currentVerifyToken)) {
-                throw new Error('Invalid verify token.');
-              }
+    //         try {
+    //           const privateKeyPem = EncryptionAuthenticationService.convertDerToPem(
+    //             serverPrivateKey,
+    //             'private',
+    //           );
 
-              console.info(
-                chalk.blue(
-                  `User ${currentUsername} passed the encryption verification. (UUID: ${currentUUID!.value})`,
-                ),
-              );
+    //           const verifyToken = EncryptionAuthenticationService.decryptData(
+    //             packet.verifyToken,
+    //             privateKeyPem,
+    //           );
+    //           if (!verifyToken.equals(currentVerifyToken)) {
+    //             throw new Error('Invalid verify token.');
+    //           }
 
-              const sharedSecret = EncryptionAuthenticationService.decryptData(
-                packet.sharedSecret,
-                privateKeyPem,
-              );
+    //           console.info(
+    //             chalk.blue(
+    //               `User ${currentUsername} passed the encryption verification. (UUID: ${currentUUID!.value})`,
+    //             ),
+    //           );
 
-              console.info(chalk.blue('Enabling cryptography.'));
+    //           const sharedSecret = EncryptionAuthenticationService.decryptData(
+    //             packet.sharedSecret,
+    //             privateKeyPem,
+    //           );
 
-              const cipher = crypto.createCipheriv(
-                'aes-128-cfb8',
-                sharedSecret,
-                sharedSecret.subarray(0, 16),
-              );
-              const decipher = crypto.createDecipheriv(
-                'aes-128-cfb8',
-                sharedSecret,
-                sharedSecret.subarray(0, 16),
-              );
-            } catch (error: unknown) {
-              socket.end();
+    //           console.info(chalk.blue('Enabling cryptography.'));
 
-              throw new Error(`Invalid token encrypted.`);
-            }
+    //           const cipher = crypto.createCipheriv(
+    //             'aes-128-cfb8',
+    //             sharedSecret,
+    //             sharedSecret.subarray(0, 16),
+    //           );
+    //           const decipher = crypto.createDecipheriv(
+    //             'aes-128-cfb8',
+    //             sharedSecret,
+    //             sharedSecret.subarray(0, 16),
+    //           );
+    //         } catch (error: unknown) {
+    //           socket.end();
 
-            break;
-          }
-          default:
-            console.log('Unknown packet from Login.');
-        }
+    //           throw new Error(`Invalid token encrypted.`);
+    //         }
 
-        break;
-      }
-      default:
-        throw new Error(`Invalid current state: ${currentState}`);
-    }
+    //         break;
+    //       }
+    //       default:
+    //         console.log('Unknown packet from Login.');
+    //     }
+
+    //     break;
+    //   }
+    //   default:
+    //     throw new Error(`Invalid current state: ${currentState}`);
+    // }
   });
 });
 

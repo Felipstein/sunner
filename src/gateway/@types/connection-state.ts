@@ -1,0 +1,7 @@
+export enum ConnectionState {
+  HANDSHAKING = 'HANDSHAKING',
+  STATUS = 'STATUS',
+  LOGIN = 'LOGIN',
+  CONFIGURATION = 'CONFIGURATION',
+  PLAY = 'PLAY',
+}
