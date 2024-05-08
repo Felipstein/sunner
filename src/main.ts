@@ -13,11 +13,14 @@ export const serverKeys = EncryptionAuthenticationService.generateKeyPair();
 server.on('connection', (socket) => {
   const connection = new Connection(socket);
 
-  socket.on('data', (data) => {
+  socket.on('data', (encryptedData) => {
+    const decipher = connection.encryptionStage?.security?.decipher;
+    const data = decipher ? decipher.update(encryptedData) : encryptedData;
+
     const unknownPacket = UnknownPacket.fromBuffer(data);
 
     console.info(
-      chalk.gray('<<- Received packet\t'),
+      chalk.gray(`<<- Received packet${decipher ? chalk.blue('*') : ''}\t`),
       `Packet ID: ${chalk.yellow(unknownPacket.hexId())}`,
       '-',
       chalk.green(connection.state),
@@ -41,7 +44,7 @@ server.on('connection', (socket) => {
 
         if (!packet.compressed) {
           console.info(
-            chalk.gray(`<<- Received packet${chalk.red('*')}\t`),
+            chalk.gray(`<<- Received packet${decipher ? chalk.blue('*') : ''}${chalk.red('*')}\t`),
             `Packet ID: ${chalk.yellow(unknownPacket.hexId())}`,
             '-',
             chalk.green(connection.state),

@@ -51,20 +51,4 @@ export class EncryptionAuthenticationService {
 
     return pemHeader + formattedBase64 + pemFooter;
   }
-
-  static createCipherAndDecipher(sharedSecret: Buffer) {
-    const cipher = crypto.createCipheriv(
-      'aes-128-cfb8',
-      sharedSecret,
-      sharedSecret.subarray(0, 16),
-    );
-
-    const decipher = crypto.createDecipheriv(
-      'aes-128-cfb8',
-      sharedSecret,
-      sharedSecret.subarray(0, 16),
-    );
-
-    return { cipher, decipher };
-  }
 }

@@ -6,6 +6,7 @@ import { ConnectionState } from '../../../@types/connection-state';
 import { EncryptionRequestPacket } from '../../../packets/encryption-request.packet';
 import { EncryptionResponsePacket } from '../../../packets/encryption-response.packet';
 import { LoginStartPacket } from '../../../packets/login-start.packet';
+import { LoginSuccessPacket } from '../../../packets/login-success.packet';
 import { UnknownPacket } from '../../../packets/unknown-packet';
 import { EncryptionAuthenticationService } from '../../../services/encryption-authentication';
 import { EncryptionStage } from '../encryption-stage';
@@ -31,6 +32,11 @@ export class LoginConnectionHandler extends ConnectionHandler {
         this.onEncryptionResponse(unknownPacket);
         break;
       }
+      case 0x03: {
+        // Login Acknowledged Packet
+        this.connection.changeState(ConnectionState.CONFIGURATION);
+        break;
+      }
       default: {
         console.log(`Unknown packet from ${this.constructor.name} ${unknownPacket.hexId()}`);
       }
@@ -51,25 +57,47 @@ export class LoginConnectionHandler extends ConnectionHandler {
   }
 
   private onEncryptionResponse(unknownPacket: UnknownPacket) {
-    const { encryptionStage } = this.connection;
-
-    if (!encryptionStage) {
+    if (!this.connection.encryptionStage) {
       throw new Error(`You client loses some important packets, try again.`);
     }
 
+    const { encryptionStage } = this.connection;
+
     const encryptionResponsePacket = EncryptionResponsePacket.fromUnknownPacket(unknownPacket);
-    const privateKeyPem = EncryptionAuthenticationService.convertDerToPem(
-      serverKeys.privateKey,
-      'private',
+
+    const sharedSecret = this.validateClientEncryption(
+      encryptionResponsePacket.verifyToken,
+      encryptionResponsePacket.sharedSecret,
     );
 
+    console.info(chalk.blue('Enabling cryptography.'));
+
+    this.connection.encryptionStage.enableEncryption(sharedSecret);
+
+    const loginSuccessPacket = new LoginSuccessPacket(
+      encryptionStage.playerUUID,
+      encryptionStage.username,
+      [{ name: 'Felipe', value: 'oloco', isSigned: true, signature: 'eita' }],
+    );
+
+    this.reply(loginSuccessPacket);
+  }
+
+  private validateClientEncryption(verifyTokenEncrypted: Buffer, sharedSecretEncrypted: Buffer) {
+    const encryptionStage = this.connection.encryptionStage!;
+
     try {
+      const privateKeyPem = EncryptionAuthenticationService.convertDerToPem(
+        serverKeys.privateKey,
+        'private',
+      );
+
       const verifyToken = EncryptionAuthenticationService.decryptData(
-        encryptionResponsePacket.verifyToken,
+        verifyTokenEncrypted,
         privateKeyPem,
       );
       if (!verifyToken.equals(encryptionStage.verifyToken)) {
-        throw new Error('Invalid verify token.');
+        throw new Error('invalid_verify_token');
       }
 
       console.info(
@@ -79,15 +107,18 @@ export class LoginConnectionHandler extends ConnectionHandler {
       );
 
       const sharedSecret = EncryptionAuthenticationService.decryptData(
-        encryptionResponsePacket.sharedSecret,
+        sharedSecretEncrypted,
         privateKeyPem,
       );
 
-      console.info(chalk.blue('Enabling cryptography.'));
+      return sharedSecret;
+    } catch (error: unknown) {
+      if (error instanceof Error && error.message === 'invalid_verify_token') {
+        throw error;
+      }
 
-      const { cipher, decipher } =
-        EncryptionAuthenticationService.createCipherAndDecipher(sharedSecret);
-    } catch {
+      console.log(chalk.red(error));
+
       throw new Error('Invalid token encrypted.');
     }
   }

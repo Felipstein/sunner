@@ -32,6 +32,10 @@ export class Connection {
     return this._handler;
   }
 
+  isEncryptionEnabled() {
+    return !!this.encryptionStage?.isEncryptionEnabled();
+  }
+
   changeState(state: ConnectionState) {
     switch (state) {
       case ConnectionState.HANDSHAKING:
@@ -55,8 +59,10 @@ export class Connection {
   }
 
   sendPacket(packet: Packet) {
+    const encryption = this.encryptionStage?.security;
+
     console.info(
-      chalk.gray('->> Sent packet\t\t'),
+      chalk.gray(`->> Sent packet${encryption ? chalk.blue('*') : '\t'}\t`),
       `Packet ID: ${chalk.yellow(packet.hexId())}`,
       '-',
       chalk.green(this.state),
@@ -65,6 +71,9 @@ export class Connection {
       chalk.italic(`- ( ${packet.totalLength} bytes )`),
     );
 
-    this.socket.write(packet.toBuffer());
+    const bufferedPacket = packet.toBuffer();
+    const data = encryption ? encryption.cipher.update(bufferedPacket) : bufferedPacket;
+
+    this.socket.write(data);
   }
 }
