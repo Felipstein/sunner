@@ -10,20 +10,20 @@ import { UnknownPacket } from '../../../packets/unknown-packet';
 import { EncryptionAuthenticationService } from '../../../services/encryption-authentication';
 import { EncryptionStage } from '../encryption-stage';
 
-import { ConnectionHandler, Reply } from '.';
+import { ConnectionHandler } from '.';
 
 export class LoginConnectionHandler extends ConnectionHandler {
   constructor(connection: Connection) {
     super(ConnectionState.LOGIN, connection);
   }
 
-  override onArrivalPacket(unknownPacket: UnknownPacket, reply: Reply) {
+  override onArrivalPacket(unknownPacket: UnknownPacket) {
     switch (unknownPacket.id) {
       case 0x00: {
         const loginStartPacket = LoginStartPacket.fromUnknownPacket(unknownPacket);
         const verifyToken = EncryptionAuthenticationService.generateVerifyToken();
 
-        this.sendEncryptionRequest(verifyToken, reply);
+        this.sendEncryptionRequest(verifyToken);
         this.onLoginStart(loginStartPacket, verifyToken);
         break;
       }
@@ -37,9 +37,9 @@ export class LoginConnectionHandler extends ConnectionHandler {
     }
   }
 
-  private sendEncryptionRequest(verifyToken: Buffer, reply: Reply) {
+  private sendEncryptionRequest(verifyToken: Buffer) {
     const encryptionRequestPacket = new EncryptionRequestPacket(serverKeys.publicKey, verifyToken);
-    reply(encryptionRequestPacket);
+    this.reply(encryptionRequestPacket);
   }
 
   private onLoginStart(loginStartPacket: LoginStartPacket, verifyToken: Buffer) {

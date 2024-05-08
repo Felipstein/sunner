@@ -29,7 +29,7 @@ server.on('connection', (socket) => {
         : '',
     );
 
-    connection.handler.onArrivalPacket(unknownPacket, connection.sendPacket.bind(connection));
+    connection.handler.onArrivalPacket(unknownPacket);
   });
 });
 

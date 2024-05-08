@@ -10,26 +10,26 @@ import { getMCVersionByProtocol, ProtocolVersion } from '../../../protocol-versi
 import { EncryptionAuthenticationService } from '../../../services/encryption-authentication';
 import { EncryptionStage } from '../encryption-stage';
 
-import { ConnectionHandler, Reply } from '.';
+import { ConnectionHandler } from '.';
 
 export class HandshakingConnectionHandler extends ConnectionHandler {
   constructor(connection: Connection) {
     super(ConnectionState.HANDSHAKING, connection);
   }
 
-  override onArrivalPacket(unknownPacket: UnknownPacket, reply: Reply) {
+  override onArrivalPacket(unknownPacket: UnknownPacket) {
     switch (unknownPacket.id) {
       case 0x00: {
         const handshakePacket = HandshakePacket.fromUnknownPacket(unknownPacket);
 
         if (handshakePacket.nextState === 1) {
-          this.onReturnServerStatus(reply);
+          this.onReturnServerStatus();
           this.connection.changeState(ConnectionState.STATUS);
           break;
         }
 
         if (handshakePacket.nextState === 2) {
-          this.checkIfHasLoginStartPacketCompressed(unknownPacket, handshakePacket, reply);
+          this.checkIfHasLoginStartPacketCompressed(unknownPacket, handshakePacket.lastOffset);
           this.connection.changeState(ConnectionState.LOGIN);
           break;
         }
@@ -42,7 +42,7 @@ export class HandshakingConnectionHandler extends ConnectionHandler {
     }
   }
 
-  private onReturnServerStatus(reply: Reply) {
+  private onReturnServerStatus() {
     const protocolVersion = ProtocolVersion.V1_20_4;
     const statusResponsePacket = new StatusResponsePacket({
       version: { name: getMCVersionByProtocol(protocolVersion), protocol: protocolVersion },
@@ -50,16 +50,12 @@ export class HandshakingConnectionHandler extends ConnectionHandler {
       description: { text: 'Welcome my friend!', color: 'red' },
     });
 
-    reply(statusResponsePacket);
+    this.reply(statusResponsePacket);
   }
 
-  private checkIfHasLoginStartPacketCompressed(
-    unknownPacket: UnknownPacket,
-    handshakePacket: HandshakePacket,
-    reply: Reply,
-  ) {
+  private checkIfHasLoginStartPacketCompressed(unknownPacket: UnknownPacket, lastHSOffset: number) {
     if (unknownPacket.compressed) {
-      const compressedPacket = unknownPacket.slice(handshakePacket.lastOffset);
+      const compressedPacket = unknownPacket.slice(lastHSOffset);
 
       if (compressedPacket.id === 0x00) {
         const verifyToken = EncryptionAuthenticationService.generateVerifyToken();
@@ -68,7 +64,7 @@ export class HandshakingConnectionHandler extends ConnectionHandler {
           verifyToken,
         );
 
-        reply(encryptionRequestPacket);
+        this.reply(encryptionRequestPacket);
 
         const loginStartPacket = LoginStartPacket.fromUnknownPacket(compressedPacket);
         this.connection.encryptionStage = new EncryptionStage({
