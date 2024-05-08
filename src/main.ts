@@ -1,9 +1,9 @@
+import crypto from 'node:crypto';
 import * as net from 'node:net';
 
 import chalk from 'chalk';
 
 import { config } from './config';
-import { BufferIterator } from './gateway/core/buffer-iterator';
 import { Packet } from './gateway/core/packet';
 import { EncryptionRequestPacket } from './gateway/packets/encryption-request.packet';
 import { EncryptionResponsePacket } from './gateway/packets/encryption-response.packet';
@@ -16,11 +16,9 @@ import { UnknownPacket } from './gateway/packets/unknown-packet';
 import {
   generateVerifyToken,
   generateServerEncryption,
-  decryptData,
   convertDerToPem,
   decryptData,
 } from './gateway/services/encryption-authentication';
-import { bitUtils } from './gateway/utils/bit';
 import { UUID } from './shared/value-objects/uuid';
 
 const server = net.createServer();
@@ -162,12 +160,25 @@ server.on('connection', (socket) => {
               }
 
               console.info(
-                chalk.cyan(
+                chalk.blue(
                   `User ${currentUsername} passed the encryption verification. (UUID: ${currentUUID!.value})`,
                 ),
               );
 
               const sharedSecret = decryptData(packet.sharedSecret, privateKeyPem);
+
+              console.info(chalk.blue('Enabling cryptography.'));
+
+              const cipher = crypto.createCipheriv(
+                'aes-128-cfb8',
+                sharedSecret,
+                sharedSecret.subarray(0, 16),
+              );
+              const decipher = crypto.createDecipheriv(
+                'aes-128-cfb8',
+                sharedSecret,
+                sharedSecret.subarray(0, 16),
+              );
             } catch (error: unknown) {
               socket.end();
 
