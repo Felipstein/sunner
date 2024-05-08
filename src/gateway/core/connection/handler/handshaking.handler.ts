@@ -1,9 +1,7 @@
 import { Connection } from '..';
 import { ConnectionState } from '../../../@types/connection-state';
 import { HandshakePacket } from '../../../packets/handshake.packet';
-import { StatusResponsePacket } from '../../../packets/status-response.packet';
 import { UnknownPacket } from '../../../packets/unknown-packet';
-import { getMCVersionByProtocol, ProtocolVersion } from '../../../protocol-version';
 
 import { ConnectionHandler } from '.';
 
