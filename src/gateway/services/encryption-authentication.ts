@@ -33,7 +33,7 @@ export function encryptData(data: Buffer | string, publicKeyPem: string) {
   return crypto.publicEncrypt(
     {
       key: publicKeyPem,
-      padding: crypto.constants.RSA_PKCS1_OAEP_PADDING,
+      padding: crypto.constants.RSA_PKCS1_PADDING,
       oaepHash: 'sha256',
     },
     typeof data === 'string' ? Buffer.from(data) : data,
@@ -44,7 +44,7 @@ export function decryptData(encryptedData: Buffer, privateKeyPem: string) {
   return crypto.privateDecrypt(
     {
       key: privateKeyPem,
-      padding: crypto.constants.RSA_PKCS1_OAEP_PADDING,
+      padding: crypto.constants.RSA_PKCS1_PADDING,
       oaepHash: 'sha256',
     },
     encryptedData,

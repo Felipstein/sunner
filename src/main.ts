@@ -18,7 +18,9 @@ import {
   generateServerEncryption,
   decryptData,
   convertDerToPem,
+  decryptData,
 } from './gateway/services/encryption-authentication';
+import { bitUtils } from './gateway/utils/bit';
 import { UUID } from './shared/value-objects/uuid';
 
 const server = net.createServer();
@@ -145,24 +147,32 @@ server.on('connection', (socket) => {
             break;
           }
           case 0x01: {
+            if (!currentVerifyToken) {
+              throw new Error('You client loses some important packets, try again.');
+            }
+
             const packet = EncryptionResponsePacket.fromUnknownPacket(unknownPacket);
 
-            // const sharedSecret = decryptData(
-            //   packet.sharedSecret,
-            //   convertDerToPem(serverPrivateKey, 'private'),
-            // );
-            // const verifyToken = decryptData(
-            //   packet.verifyToken,
-            //   convertDerToPem(serverPrivateKey, 'private'),
-            // );
+            try {
+              const privateKeyPem = convertDerToPem(serverPrivateKey, 'private');
 
-            const bufferIterator = new BufferIterator(packet.sharedSecret);
+              const verifyToken = decryptData(packet.verifyToken, privateKeyPem);
+              if (!verifyToken.equals(currentVerifyToken)) {
+                throw new Error('Invalid verify token.');
+              }
 
-            console.log({
-              sharedSecret: bufferIterator.readString(),
-              verifyToken: packet.verifyToken,
-              currentVerifyToken,
-            });
+              console.info(
+                chalk.cyan(
+                  `User ${currentUsername} passed the encryption verification. (UUID: ${currentUUID!.value})`,
+                ),
+              );
+
+              const sharedSecret = decryptData(packet.sharedSecret, privateKeyPem);
+            } catch (error: unknown) {
+              socket.end();
+
+              throw new Error(`Invalid token encrypted.`);
+            }
 
             break;
           }
