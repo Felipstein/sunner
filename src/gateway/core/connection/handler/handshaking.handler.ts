@@ -18,7 +18,6 @@ export class HandshakingConnectionHandler extends ConnectionHandler {
         const handshakePacket = HandshakePacket.fromUnknownPacket(unknownPacket);
 
         if (handshakePacket.nextState === 1) {
-          this.onReturnServerStatus();
           this.connection.changeState(ConnectionState.STATUS);
           break;
         }
@@ -34,16 +33,5 @@ export class HandshakingConnectionHandler extends ConnectionHandler {
         console.log(`Unknown packet from ${this.constructor.name} ${unknownPacket.hexId()}`);
       }
     }
-  }
-
-  private onReturnServerStatus() {
-    const protocolVersion = ProtocolVersion.V1_20_4;
-    const statusResponsePacket = new StatusResponsePacket({
-      version: { name: getMCVersionByProtocol(protocolVersion), protocol: protocolVersion },
-      players: { max: 100, online: 0 },
-      description: { text: 'Welcome my friend!', color: 'red' },
-    });
-
-    this.reply(statusResponsePacket);
   }
 }
