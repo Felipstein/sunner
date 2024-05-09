@@ -12,7 +12,7 @@ export class StatusResponsePacket extends Packet {
     super(StatusResponsePacket.PACKET_ID);
   }
 
-  protected override onlyDataToBuffer() {
+  protected override dataToBuffer() {
     return bitUtils.writeString(JSON.stringify(this.payload));
   }
 

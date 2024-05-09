@@ -8,8 +8,8 @@ export class StatusRequestPacket extends Packet {
     super(StatusRequestPacket.PACKET_ID);
   }
 
-  protected override onlyDataToBuffer() {
-    return Buffer.alloc(0);
+  protected override dataToBuffer() {
+    return null;
   }
 
   static fromBuffer(buffer: Buffer) {

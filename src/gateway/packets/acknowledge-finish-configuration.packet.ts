@@ -8,8 +8,8 @@ export class AcknowledgeFinishConfigurationPacket extends Packet {
     super(AcknowledgeFinishConfigurationPacket.PACKET_ID);
   }
 
-  protected override onlyDataToBuffer(): Buffer {
-    return Buffer.alloc(0);
+  protected override dataToBuffer() {
+    return null;
   }
 
   static fromBuffer(buffer: Buffer) {

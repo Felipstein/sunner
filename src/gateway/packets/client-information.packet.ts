@@ -18,7 +18,7 @@ export class ClientInformationPacket extends Packet {
     super(ClientInformationPacket.PACKET_ID);
   }
 
-  protected override onlyDataToBuffer(): Buffer {
+  protected override dataToBuffer() {
     const bufferedLocale = bitUtils.writeString(this.locale);
     const bufferedViewDistance = bitUtils.writeByte(this.viewDistance);
     const bufferedChatMode = bitUtils.writeVarInt(this.chatMode);
@@ -28,7 +28,7 @@ export class ClientInformationPacket extends Packet {
     const bufferedEnableTextFiltering = bitUtils.writeBoolean(this.enableTextFiltering);
     const bufferedAllowServerListings = bitUtils.writeBoolean(this.allowServerListings);
 
-    return Buffer.concat([
+    return [
       bufferedLocale,
       bufferedViewDistance,
       bufferedChatMode,
@@ -37,7 +37,7 @@ export class ClientInformationPacket extends Packet {
       bufferedMainHand,
       bufferedEnableTextFiltering,
       bufferedAllowServerListings,
-    ]);
+    ];
   }
 
   static fromBuffer(buffer: Buffer) {

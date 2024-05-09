@@ -11,7 +11,7 @@ export class DisconnectLoginPacket extends Packet {
     super(DisconnectLoginPacket.PACKET_ID);
   }
 
-  protected override onlyDataToBuffer(): Buffer {
+  protected override dataToBuffer() {
     return bitUtils.writeString(JSON.stringify(this.reason));
   }
 

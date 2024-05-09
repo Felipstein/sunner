@@ -9,7 +9,7 @@ export class SetCompressionPacket extends Packet {
     super(SetCompressionPacket.PACKET_ID);
   }
 
-  protected override onlyDataToBuffer() {
+  protected override dataToBuffer() {
     return bitUtils.writeVarInt(this.threshold);
   }
 

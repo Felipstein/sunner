@@ -12,10 +12,10 @@ export class ServerboundPluginMessagePacket extends Packet {
     super(ServerboundPluginMessagePacket.PACKET_ID);
   }
 
-  protected override onlyDataToBuffer() {
+  protected override dataToBuffer() {
     const bufferedChannel = bitUtils.writeString(this.channel);
 
-    return Buffer.concat([bufferedChannel, this.data]);
+    return [bufferedChannel, this.data];
   }
 
   static fromBuffer(buffer: Buffer) {

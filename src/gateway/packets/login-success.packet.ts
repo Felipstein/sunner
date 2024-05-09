@@ -31,7 +31,7 @@ export class LoginSuccessPacket extends Packet {
     super(LoginSuccessPacket.PACKET_ID);
   }
 
-  protected override onlyDataToBuffer(): Buffer {
+  protected override dataToBuffer() {
     const bufferedUUID = bitUtils.writeUUID(this.uuid);
     const bufferedUsername = bitUtils.writeString(this.username);
     const bufferedPropertiesCount = bitUtils.writeVarInt(this.properties.length);
@@ -46,12 +46,7 @@ export class LoginSuccessPacket extends Packet {
       return Buffer.concat([bufferedName, bufferedValue, bufferedIsSigned, bufferedSignature]);
     });
 
-    return Buffer.concat([
-      bufferedUUID,
-      bufferedUsername,
-      bufferedPropertiesCount,
-      ...bufferedProperties,
-    ]);
+    return [bufferedUUID, bufferedUsername, bufferedPropertiesCount, ...bufferedProperties];
   }
 
   static fromBuffer(buffer: Buffer) {

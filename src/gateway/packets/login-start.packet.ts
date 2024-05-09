@@ -13,11 +13,11 @@ export class LoginStartPacket extends Packet {
     super(LoginStartPacket.PACKET_ID);
   }
 
-  protected override onlyDataToBuffer() {
+  protected override dataToBuffer() {
     const bufferedName = bitUtils.writeString(this.name);
     const bufferedPlayerUUID = bitUtils.writeUUID(this.playerUUID);
 
-    return Buffer.concat([bufferedName, bufferedPlayerUUID]);
+    return [bufferedName, bufferedPlayerUUID];
   }
 
   static fromBuffer(buffer: Buffer) {

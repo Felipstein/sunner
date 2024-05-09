@@ -18,7 +18,7 @@ export abstract class Packet {
   }
 
   get totalLength() {
-    const bufferedData = this.onlyDataToBuffer();
+    const bufferedData = this.dataToBuffer() ?? Buffer.alloc(0);
     const bufferedPacketId = bitUtils.writeVarInt(this.id);
 
     return bufferedData.length + bufferedPacketId.length;
@@ -28,10 +28,12 @@ export abstract class Packet {
     return this._lastOffset;
   }
 
-  protected abstract onlyDataToBuffer(): Buffer;
+  protected abstract dataToBuffer(): Buffer | Buffer[] | null;
 
   toBuffer() {
-    const bufferedData = this.onlyDataToBuffer();
+    const dataToBuffer = this.dataToBuffer() ?? Buffer.alloc(0);
+
+    const bufferedData = Array.isArray(dataToBuffer) ? Buffer.concat(dataToBuffer) : dataToBuffer;
     const bufferedPacketId = bitUtils.writeVarInt(this.id);
     const bufferedLength = bitUtils.writeVarInt(bufferedData.length + bufferedPacketId.length);
 

@@ -9,7 +9,7 @@ export class PingResponsePacket extends Packet {
     super(PingResponsePacket.PACKET_ID);
   }
 
-  protected override onlyDataToBuffer(): Buffer {
+  protected override dataToBuffer(): Buffer {
     return bitUtils.writeLong(this.payload);
   }
 
