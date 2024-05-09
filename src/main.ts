@@ -7,6 +7,7 @@ import { config } from './config';
 import { Connection } from './gateway/core/connection';
 import { UnknownPacket } from './gateway/packets/unknown-packet';
 import { EncryptionAuthenticationService } from './gateway/services/encryption-authentication';
+import { decompressPacket } from './gateway/utils/decompress-packet';
 
 export const worldDir = path.resolve('tmp', 'saves', 'world');
 
@@ -36,7 +37,7 @@ server.on('connection', (socket) => {
     );
 
     if (unknownPacket.compressed) {
-      decompress(unknownPacket, (decompressedPacket) => {
+      decompressPacket(unknownPacket, (decompressedPacket) => {
         console.info(
           chalk.gray(`<<- Received packet${decipher ? chalk.blue('*') : ''}${chalk.red('*')}\t`),
           `Packet ID: ${chalk.yellow(unknownPacket.hexId())}`,
@@ -55,28 +56,6 @@ server.on('connection', (socket) => {
     }
   });
 });
-
-function decompress(unknownPacket: UnknownPacket, callback: (decompressed: UnknownPacket) => void) {
-  let offset = 0;
-  let index = 0;
-
-  while (offset < unknownPacket.totalLength) {
-    const packet = unknownPacket.slice(offset, index === 0 ? unknownPacket.length + 1 : undefined);
-
-    if (!packet.compressed) {
-      callback(packet);
-    } else {
-      console.warn(
-        chalk.yellow(
-          `Packet (${packet.hexId()}) is compressed. Actually the code does not support this. The package is will be ignored.`,
-        ),
-      );
-    }
-
-    offset += packet.length + 1;
-    index++;
-  }
-}
 
 server.on('error', (error) => {
   throw error;
