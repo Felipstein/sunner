@@ -1,5 +1,3 @@
-import crypto from 'node:crypto';
-
 import { UUID } from '../../shared/value-objects/uuid';
 import { UnknownPacket } from '../packets/unknown-packet';
 import { ProtocolVersion } from '../protocol-version';
@@ -28,7 +26,7 @@ function createHandshakePacket() {
 
 function createLoginPacket() {
   const bufferedName = bitUtils.writeString('Felipe');
-  const bufferedUUID = bitUtils.writeUUID(new UUID(crypto.randomUUID()));
+  const bufferedUUID = bitUtils.writeUUID(new UUID('123e4567-e89b-12d3-a456-426614174000'));
 
   const bufferedData = Buffer.concat([bufferedName, bufferedUUID]);
 
