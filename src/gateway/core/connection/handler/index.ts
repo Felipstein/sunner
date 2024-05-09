@@ -1,7 +1,7 @@
 import { Connection } from '..';
 import { ConnectionState } from '../../../@types/connection-state';
-import { UnknownPacket } from '../../../packets/unknown-packet';
 import { Packet } from '../../packet';
+import { UnknownPacket } from '../../unknown-packet';
 
 export type Reply = (packet: Packet) => void;
 

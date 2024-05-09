@@ -1,7 +1,6 @@
 import { Packet } from '../core/packet';
+import { UnknownPacket } from '../core/unknown-packet';
 import { bitUtils } from '../utils/bit';
-
-import { UnknownPacket } from './unknown-packet';
 
 type NextState = 1 | 2;
 

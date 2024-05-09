@@ -3,7 +3,7 @@ import { InvalidJSONParseError } from '../core/errors/invalid-json-parse';
 import { Packet } from '../core/packet';
 import { bitUtils } from '../utils/bit';
 
-import { UnknownPacket } from './unknown-packet';
+import { UnknownPacket } from '../core/unknown-packet';
 
 export class DisconnectLoginPacket extends Packet {
   static readonly PACKET_ID = 0x00;

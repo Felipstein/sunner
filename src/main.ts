@@ -5,7 +5,7 @@ import chalk from 'chalk';
 
 import { config } from './config';
 import { Connection } from './gateway/core/connection';
-import { UnknownPacket } from './gateway/packets/unknown-packet';
+import { UnknownPacket } from './gateway/core/unknown-packet';
 import { EncryptionAuthenticationService } from './gateway/services/encryption-authentication';
 import { decompressPacket } from './gateway/utils/decompress-packet';
 

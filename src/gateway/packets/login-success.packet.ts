@@ -1,8 +1,7 @@
 import { UUID } from '../../shared/value-objects/uuid';
 import { Packet } from '../core/packet';
+import { UnknownPacket } from '../core/unknown-packet';
 import { bitUtils } from '../utils/bit';
-
-import { UnknownPacket } from './unknown-packet';
 
 interface PropertyDefaultFields {
   name: string;

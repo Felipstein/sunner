@@ -1,5 +1,5 @@
 import { UUID } from '../../shared/value-objects/uuid';
-import { UnknownPacket } from '../packets/unknown-packet';
+import { UnknownPacket } from '../core/unknown-packet';
 import { ProtocolVersion } from '../protocol-version';
 
 import { bitUtils } from './bit';

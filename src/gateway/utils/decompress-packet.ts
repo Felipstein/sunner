@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 
-import { UnknownPacket } from '../packets/unknown-packet';
+import { UnknownPacket } from '../core/unknown-packet';
 
 type Callback = (decompressedPacket: UnknownPacket) => void;
 

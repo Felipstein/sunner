@@ -1,4 +1,4 @@
-import { Packet } from '../core/packet';
+import { Packet } from './packet';
 
 export class UnknownPacket extends Packet {
   constructor(

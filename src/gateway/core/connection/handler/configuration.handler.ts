@@ -4,7 +4,7 @@ import { Connection } from '..';
 import { ConnectionState } from '../../../@types/connection-state';
 import { ClientInformationPacket } from '../../../packets/client-information.packet';
 import { FinishConfigurationPacket } from '../../../packets/finish-configuration.packet';
-import { UnknownPacket } from '../../../packets/unknown-packet';
+import { UnknownPacket } from '../../unknown-packet';
 
 import { ConnectionHandler } from '.';
 

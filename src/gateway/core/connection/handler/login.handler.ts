@@ -7,8 +7,8 @@ import { EncryptionRequestPacket } from '../../../packets/encryption-request.pac
 import { EncryptionResponsePacket } from '../../../packets/encryption-response.packet';
 import { LoginStartPacket } from '../../../packets/login-start.packet';
 import { LoginSuccessPacket } from '../../../packets/login-success.packet';
-import { UnknownPacket } from '../../../packets/unknown-packet';
 import { EncryptionAuthenticationService } from '../../../services/encryption-authentication';
+import { UnknownPacket } from '../../unknown-packet';
 import { EncryptionStage } from '../encryption-stage';
 
 import { ConnectionHandler } from '.';

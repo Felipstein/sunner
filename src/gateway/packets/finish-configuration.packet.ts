@@ -1,6 +1,5 @@
 import { Packet } from '../core/packet';
-
-import { UnknownPacket } from './unknown-packet';
+import { UnknownPacket } from '../core/unknown-packet';
 
 export class FinishConfigurationPacket extends Packet {
   static readonly PACKET_ID = 0x02;

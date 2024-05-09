@@ -1,6 +1,6 @@
 import { Connection } from '..';
 import { ConnectionState } from '../../../@types/connection-state';
-import { UnknownPacket } from '../../../packets/unknown-packet';
+import { UnknownPacket } from '../../unknown-packet';
 
 import { ConnectionHandler } from '.';
 

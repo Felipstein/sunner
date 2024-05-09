@@ -3,7 +3,7 @@ import { ConnectionState } from '../../../@types/connection-state';
 import { PingRequestPacket } from '../../../packets/ping-request.packet';
 import { PingResponsePacket } from '../../../packets/ping-response.packet';
 import { StatusResponsePacket } from '../../../packets/status-response.packet';
-import { UnknownPacket } from '../../../packets/unknown-packet';
+import { UnknownPacket } from '../../unknown-packet';
 import { getMCVersionByProtocol, ProtocolVersion } from '../../../protocol-version';
 
 import { ConnectionHandler } from '.';

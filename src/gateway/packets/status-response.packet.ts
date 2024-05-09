@@ -3,7 +3,7 @@ import { Packet } from '../core/packet';
 import { bitUtils } from '../utils/bit';
 
 import { StatusResponsePayload } from './types/status-response-payload';
-import { UnknownPacket } from './unknown-packet';
+import { UnknownPacket } from '../core/unknown-packet';
 
 export class StatusResponsePacket extends Packet {
   static readonly PACKET_ID = 0x00;
