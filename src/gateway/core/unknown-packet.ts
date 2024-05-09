@@ -16,7 +16,7 @@ export class UnknownPacket extends Packet {
     return UnknownPacket.fromBuffer(bufferSliced);
   }
 
-  protected onlyDataToBuffer() {
+  protected override dataToBuffer() {
     return this.data;
   }
 
