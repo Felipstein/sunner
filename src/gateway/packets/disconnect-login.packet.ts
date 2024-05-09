@@ -1,9 +1,8 @@
 import { JSONTextComponent } from '../../shared/json-text-component';
 import { InvalidJSONParseError } from '../core/errors/invalid-json-parse';
 import { Packet } from '../core/packet';
-import { bitUtils } from '../utils/bit';
-
 import { UnknownPacket } from '../core/unknown-packet';
+import { bitUtils } from '../utils/bit';
 
 export class DisconnectLoginPacket extends Packet {
   static readonly PACKET_ID = 0x00;
@@ -12,16 +11,8 @@ export class DisconnectLoginPacket extends Packet {
     super(DisconnectLoginPacket.PACKET_ID);
   }
 
-  override get totalLength() {
-    const bufferedReason = bitUtils.writeString(JSON.stringify(this.reason));
-
-    return this.calculateLength(bufferedReason);
-  }
-
-  override toBuffer() {
-    const bufferedReason = bitUtils.writeString(JSON.stringify(this.reason));
-
-    return this.compact(bufferedReason);
+  protected override onlyDataToBuffer(): Buffer {
+    return bitUtils.writeString(JSON.stringify(this.reason));
   }
 
   static fromBuffer(buffer: Buffer) {

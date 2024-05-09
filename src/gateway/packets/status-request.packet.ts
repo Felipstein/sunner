@@ -1,5 +1,4 @@
 import { Packet } from '../core/packet';
-
 import { UnknownPacket } from '../core/unknown-packet';
 
 export class StatusRequestPacket extends Packet {
@@ -9,12 +8,8 @@ export class StatusRequestPacket extends Packet {
     super(StatusRequestPacket.PACKET_ID);
   }
 
-  override get totalLength() {
-    return this.calculateLength();
-  }
-
-  override toBuffer() {
-    return this.compact();
+  protected override onlyDataToBuffer() {
+    return Buffer.alloc(0);
   }
 
   static fromBuffer(buffer: Buffer) {

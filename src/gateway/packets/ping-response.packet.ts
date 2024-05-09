@@ -9,16 +9,8 @@ export class PingResponsePacket extends Packet {
     super(PingResponsePacket.PACKET_ID);
   }
 
-  override get totalLength() {
-    const bufferedPayload = bitUtils.writeLong(this.payload);
-
-    return this.calculateLength(bufferedPayload);
-  }
-
-  override toBuffer() {
-    const bufferedPayload = bitUtils.writeLong(this.payload);
-
-    return this.compact(bufferedPayload);
+  protected override onlyDataToBuffer(): Buffer {
+    return bitUtils.writeLong(this.payload);
   }
 
   static fromBuffer(buffer: Buffer) {

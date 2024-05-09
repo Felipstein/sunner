@@ -1,7 +1,6 @@
 import { Packet } from '../core/packet';
-import { bitUtils } from '../utils/bit';
-
 import { UnknownPacket } from '../core/unknown-packet';
+import { bitUtils } from '../utils/bit';
 
 export class SetCompressionPacket extends Packet {
   static readonly PACKET_ID = 0x03;
@@ -10,16 +9,8 @@ export class SetCompressionPacket extends Packet {
     super(SetCompressionPacket.PACKET_ID);
   }
 
-  override get totalLength() {
-    const bufferedThreshold = bitUtils.writeVarInt(this.threshold);
-
-    return this.calculateLength(bufferedThreshold);
-  }
-
-  override toBuffer() {
-    const bufferedThreshold = bitUtils.writeVarInt(this.threshold);
-
-    return this.compact(bufferedThreshold);
+  protected override onlyDataToBuffer() {
+    return bitUtils.writeVarInt(this.threshold);
   }
 
   static fromBuffer(buffer: Buffer) {

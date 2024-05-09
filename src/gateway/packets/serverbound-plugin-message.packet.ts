@@ -1,7 +1,6 @@
 import { Packet } from '../core/packet';
-import { bitUtils } from '../utils/bit';
-
 import { UnknownPacket } from '../core/unknown-packet';
+import { bitUtils } from '../utils/bit';
 
 export class ServerboundPluginMessagePacket extends Packet {
   static readonly PACKET_ID = 0x01;
@@ -13,16 +12,10 @@ export class ServerboundPluginMessagePacket extends Packet {
     super(ServerboundPluginMessagePacket.PACKET_ID);
   }
 
-  override get totalLength() {
+  protected override onlyDataToBuffer() {
     const bufferedChannel = bitUtils.writeString(this.channel);
 
-    return this.calculateLength(bufferedChannel, this.data);
-  }
-
-  override toBuffer() {
-    const bufferedChannel = bitUtils.writeString(this.channel);
-
-    return this.compact(bufferedChannel, this.data);
+    return Buffer.concat([bufferedChannel, this.data]);
   }
 
   static fromBuffer(buffer: Buffer) {

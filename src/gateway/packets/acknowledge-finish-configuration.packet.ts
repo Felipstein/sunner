@@ -8,12 +8,8 @@ export class AcknowledgeFinishConfigurationPacket extends Packet {
     super(AcknowledgeFinishConfigurationPacket.PACKET_ID);
   }
 
-  override get totalLength() {
-    return this.calculateLength();
-  }
-
-  override toBuffer() {
-    return this.compact();
+  protected override onlyDataToBuffer(): Buffer {
+    return Buffer.alloc(0);
   }
 
   static fromBuffer(buffer: Buffer) {

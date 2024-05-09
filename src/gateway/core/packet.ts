@@ -17,27 +17,26 @@ export abstract class Packet {
     return this.lengthFromHeader;
   }
 
-  get lastOffset() {
-    return this._lastOffset;
-  }
-
-  protected compact(...data: Buffer[]) {
-    const bufferedData = Array.isArray(data) ? Buffer.concat(data) : data;
-    const bufferedPacketId = bitUtils.writeVarInt(this.id);
-    const bufferedLength = bitUtils.writeVarInt(bufferedData.length + bufferedPacketId.length);
-
-    return Buffer.concat([bufferedLength, bufferedPacketId, bufferedData]);
-  }
-
-  protected calculateLength(...data: Buffer[]) {
-    const bufferedData = Array.isArray(data) ? Buffer.concat(data) : data;
+  get totalLength() {
+    const bufferedData = this.onlyDataToBuffer();
     const bufferedPacketId = bitUtils.writeVarInt(this.id);
 
     return bufferedData.length + bufferedPacketId.length;
   }
 
-  abstract get totalLength(): number;
-  abstract toBuffer(): Buffer;
+  get lastOffset() {
+    return this._lastOffset;
+  }
+
+  protected abstract onlyDataToBuffer(): Buffer;
+
+  toBuffer() {
+    const bufferedData = this.onlyDataToBuffer();
+    const bufferedPacketId = bitUtils.writeVarInt(this.id);
+    const bufferedLength = bitUtils.writeVarInt(bufferedData.length + bufferedPacketId.length);
+
+    return Buffer.concat([bufferedLength, bufferedPacketId, bufferedData]);
+  }
 
   protected static abstractPacketHeader(buffer: Buffer) {
     const bufferIterator = new BufferIterator(buffer);

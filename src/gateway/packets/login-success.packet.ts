@@ -31,7 +31,7 @@ export class LoginSuccessPacket extends Packet {
     super(LoginSuccessPacket.PACKET_ID);
   }
 
-  override get totalLength() {
+  protected override onlyDataToBuffer(): Buffer {
     const bufferedUUID = bitUtils.writeUUID(this.uuid);
     const bufferedUsername = bitUtils.writeString(this.username);
     const bufferedPropertiesCount = bitUtils.writeVarInt(this.properties.length);
@@ -46,35 +46,12 @@ export class LoginSuccessPacket extends Packet {
       return Buffer.concat([bufferedName, bufferedValue, bufferedIsSigned, bufferedSignature]);
     });
 
-    return this.calculateLength(
+    return Buffer.concat([
       bufferedUUID,
       bufferedUsername,
       bufferedPropertiesCount,
       ...bufferedProperties,
-    );
-  }
-
-  override toBuffer() {
-    const bufferedUUID = bitUtils.writeUUID(this.uuid);
-    const bufferedUsername = bitUtils.writeString(this.username);
-    const bufferedPropertiesCount = bitUtils.writeVarInt(this.properties.length);
-    const bufferedProperties = this.properties.map((prop) => {
-      const bufferedName = bitUtils.writeString(prop.name);
-      const bufferedValue = bitUtils.writeString(prop.value);
-      const bufferedIsSigned = Buffer.from([prop.isSigned ? 1 : 0]);
-      const bufferedSignature = prop.isSigned
-        ? bitUtils.writeString(prop.signature)
-        : Buffer.alloc(0);
-
-      return Buffer.concat([bufferedName, bufferedValue, bufferedIsSigned, bufferedSignature]);
-    });
-
-    return this.compact(
-      bufferedUUID,
-      bufferedUsername,
-      bufferedPropertiesCount,
-      ...bufferedProperties,
-    );
+    ]);
   }
 
   static fromBuffer(buffer: Buffer) {

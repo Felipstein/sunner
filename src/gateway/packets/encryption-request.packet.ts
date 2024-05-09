@@ -14,32 +14,18 @@ export class EncryptionRequestPacket extends Packet {
     super(EncryptionRequestPacket.PACKET_ID);
   }
 
-  override get totalLength() {
+  protected override onlyDataToBuffer(): Buffer {
     const bufferedServerId = bitUtils.writeString(this.serverId);
     const bufferedPublicKeyLength = bitUtils.writeVarInt(this.publicKey.length);
     const bufferedVerifyTokenLength = bitUtils.writeVarInt(this.verifyToken.length);
 
-    return this.calculateLength(
+    return Buffer.concat([
       bufferedServerId,
       bufferedPublicKeyLength,
       this.publicKey,
       bufferedVerifyTokenLength,
       this.verifyToken,
-    );
-  }
-
-  override toBuffer() {
-    const bufferedServerId = bitUtils.writeString(this.serverId);
-    const bufferedPublicKeyLength = bitUtils.writeVarInt(this.publicKey.length);
-    const bufferedVerifyTokenLength = bitUtils.writeVarInt(this.verifyToken.length);
-
-    return this.compact(
-      bufferedServerId,
-      bufferedPublicKeyLength,
-      this.publicKey,
-      bufferedVerifyTokenLength,
-      this.verifyToken,
-    );
+    ]);
   }
 
   static fromBuffer(buffer: Buffer) {

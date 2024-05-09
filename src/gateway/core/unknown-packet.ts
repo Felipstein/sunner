@@ -16,12 +16,8 @@ export class UnknownPacket extends Packet {
     return UnknownPacket.fromBuffer(bufferSliced);
   }
 
-  override get totalLength() {
-    return this.calculateLength(this.data);
-  }
-
-  override toBuffer() {
-    return this.compact(this.data);
+  protected onlyDataToBuffer() {
+    return this.data;
   }
 
   static fromBuffer(buffer: Buffer) {

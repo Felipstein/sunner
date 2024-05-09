@@ -12,28 +12,16 @@ export class EncryptionResponsePacket extends Packet {
     super(EncryptionResponsePacket.PACKET_ID);
   }
 
-  override get totalLength() {
+  protected override onlyDataToBuffer(): Buffer {
     const bufferedSharedSecretLength = bitUtils.writeVarInt(this.sharedSecret.length);
     const bufferedVerifyTokenLength = bitUtils.writeVarInt(this.verifyToken.length);
 
-    return this.calculateLength(
+    return Buffer.concat([
       bufferedSharedSecretLength,
       this.sharedSecret,
       bufferedVerifyTokenLength,
       this.verifyToken,
-    );
-  }
-
-  override toBuffer() {
-    const bufferedSharedSecretLength = bitUtils.writeVarInt(this.sharedSecret.length);
-    const bufferedVerifyTokenLength = bitUtils.writeVarInt(this.verifyToken.length);
-
-    return this.compact(
-      bufferedSharedSecretLength,
-      this.sharedSecret,
-      bufferedVerifyTokenLength,
-      this.verifyToken,
-    );
+    ]);
   }
 
   static fromBuffer(buffer: Buffer) {

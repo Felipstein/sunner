@@ -1,9 +1,9 @@
 import { InvalidJSONParseError } from '../core/errors/invalid-json-parse';
 import { Packet } from '../core/packet';
+import { UnknownPacket } from '../core/unknown-packet';
 import { bitUtils } from '../utils/bit';
 
 import { StatusResponsePayload } from './types/status-response-payload';
-import { UnknownPacket } from '../core/unknown-packet';
 
 export class StatusResponsePacket extends Packet {
   static readonly PACKET_ID = 0x00;
@@ -12,16 +12,8 @@ export class StatusResponsePacket extends Packet {
     super(StatusResponsePacket.PACKET_ID);
   }
 
-  override get totalLength() {
-    const bufferedData = bitUtils.writeString(JSON.stringify(this.payload));
-
-    return this.calculateLength(bufferedData);
-  }
-
-  override toBuffer() {
-    const bufferedData = bitUtils.writeString(JSON.stringify(this.payload));
-
-    return this.compact(bufferedData);
+  protected override onlyDataToBuffer() {
+    return bitUtils.writeString(JSON.stringify(this.payload));
   }
 
   static fromBuffer(buffer: Buffer) {

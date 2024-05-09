@@ -13,18 +13,11 @@ export class LoginStartPacket extends Packet {
     super(LoginStartPacket.PACKET_ID);
   }
 
-  override get totalLength() {
+  protected override onlyDataToBuffer() {
     const bufferedName = bitUtils.writeString(this.name);
     const bufferedPlayerUUID = bitUtils.writeUUID(this.playerUUID);
 
-    return this.calculateLength(bufferedName, bufferedPlayerUUID);
-  }
-
-  override toBuffer() {
-    const bufferedName = bitUtils.writeString(this.name);
-    const bufferedPlayerUUID = bitUtils.writeUUID(this.playerUUID);
-
-    return this.compact(bufferedName, bufferedPlayerUUID);
+    return Buffer.concat([bufferedName, bufferedPlayerUUID]);
   }
 
   static fromBuffer(buffer: Buffer) {

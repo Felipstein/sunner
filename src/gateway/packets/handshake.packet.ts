@@ -16,32 +16,18 @@ export class HandshakePacket extends Packet {
     super(HandshakePacket.PACKET_ID);
   }
 
-  override get totalLength() {
+  protected override onlyDataToBuffer(): Buffer {
     const bufferedProtocolVersion = bitUtils.writeVarInt(this.protocolVersion);
     const bufferedServerAddress = bitUtils.writeString(this.serverAddress);
     const bufferedServerPort = bitUtils.writeShort(this.serverPort);
     const bufferedNextState = bitUtils.writeVarInt(this.nextState);
 
-    return this.calculateLength(
+    return Buffer.concat([
       bufferedProtocolVersion,
       bufferedServerAddress,
       bufferedServerPort,
       bufferedNextState,
-    );
-  }
-
-  override toBuffer() {
-    const bufferedProtocolVersion = bitUtils.writeVarInt(this.protocolVersion);
-    const bufferedServerAddress = bitUtils.writeString(this.serverAddress);
-    const bufferedServerPort = bitUtils.writeShort(this.serverPort);
-    const bufferedNextState = bitUtils.writeVarInt(this.nextState);
-
-    return this.compact(
-      bufferedProtocolVersion,
-      bufferedServerAddress,
-      bufferedServerPort,
-      bufferedNextState,
-    );
+    ]);
   }
 
   static fromBuffer(buffer: Buffer) {

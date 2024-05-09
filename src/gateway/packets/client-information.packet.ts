@@ -18,7 +18,7 @@ export class ClientInformationPacket extends Packet {
     super(ClientInformationPacket.PACKET_ID);
   }
 
-  override get totalLength() {
+  protected override onlyDataToBuffer(): Buffer {
     const bufferedLocale = bitUtils.writeString(this.locale);
     const bufferedViewDistance = bitUtils.writeByte(this.viewDistance);
     const bufferedChatMode = bitUtils.writeVarInt(this.chatMode);
@@ -28,7 +28,7 @@ export class ClientInformationPacket extends Packet {
     const bufferedEnableTextFiltering = bitUtils.writeBoolean(this.enableTextFiltering);
     const bufferedAllowServerListings = bitUtils.writeBoolean(this.allowServerListings);
 
-    return this.calculateLength(
+    return Buffer.concat([
       bufferedLocale,
       bufferedViewDistance,
       bufferedChatMode,
@@ -37,29 +37,7 @@ export class ClientInformationPacket extends Packet {
       bufferedMainHand,
       bufferedEnableTextFiltering,
       bufferedAllowServerListings,
-    );
-  }
-
-  override toBuffer() {
-    const bufferedLocale = bitUtils.writeString(this.locale);
-    const bufferedViewDistance = bitUtils.writeByte(this.viewDistance);
-    const bufferedChatMode = bitUtils.writeVarInt(this.chatMode);
-    const bufferedChatColors = bitUtils.writeBoolean(this.chatColors);
-    const bufferedDisplayedSkinParts = bitUtils.writeByte(this.displayedSkinParts);
-    const bufferedMainHand = bitUtils.writeVarInt(this.mainHand);
-    const bufferedEnableTextFiltering = bitUtils.writeBoolean(this.enableTextFiltering);
-    const bufferedAllowServerListings = bitUtils.writeBoolean(this.allowServerListings);
-
-    return this.compact(
-      bufferedLocale,
-      bufferedViewDistance,
-      bufferedChatMode,
-      bufferedChatColors,
-      bufferedDisplayedSkinParts,
-      bufferedMainHand,
-      bufferedEnableTextFiltering,
-      bufferedAllowServerListings,
-    );
+    ]);
   }
 
   static fromBuffer(buffer: Buffer) {
