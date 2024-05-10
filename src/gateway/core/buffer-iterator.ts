@@ -42,6 +42,14 @@ export class BufferIterator {
     return value;
   }
 
+  readUnsignedLong() {
+    const { value, offset } = bitUtils.readUnsignedLong(this._buffer, this.currentOffset);
+
+    this._prevOffset = this.currentOffset;
+    this.currentOffset = offset;
+    return value;
+  }
+
   readString() {
     const { value, offset } = bitUtils.readString(this._buffer, this.currentOffset);
 
@@ -60,6 +68,14 @@ export class BufferIterator {
 
   readByte() {
     const { value, offset } = bitUtils.readByte(this._buffer, this.currentOffset);
+
+    this._prevOffset = this.currentOffset;
+    this.currentOffset = offset;
+    return value;
+  }
+
+  readUnsignedByte() {
+    const { value, offset } = bitUtils.readUnsignedByte(this._buffer, this.currentOffset);
 
     this._prevOffset = this.currentOffset;
     this.currentOffset = offset;

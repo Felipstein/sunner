@@ -6,7 +6,7 @@ function readVarInt(buffer: Buffer, offset = 0) {
   let byte: number;
 
   do {
-    byte = buffer.readUint8(offset++);
+    byte = buffer.readUInt8(offset++);
     result |= (byte & 0x7f) << (7 * numRead++);
     if (numRead > 5) {
       throw new Error('VarInt is too big');
@@ -24,6 +24,12 @@ function readShort(buffer: Buffer, offset = 0) {
 
 function readLong(buffer: Buffer, offset = 0) {
   const value = buffer.readBigInt64BE(offset);
+
+  return { value, offset: offset + 8 };
+}
+
+function readUnsignedLong(buffer: Buffer, offset = 0) {
+  const value = buffer.readBigUInt64BE(offset);
 
   return { value, offset: offset + 8 };
 }
@@ -47,6 +53,12 @@ function readUUID(buffer: Buffer, offset = 0) {
 }
 
 function readByte(buffer: Buffer, offset = 0) {
+  const value = buffer.readInt8(offset);
+
+  return { value, offset: offset + 1 };
+}
+
+function readUnsignedByte(buffer: Buffer, offset = 0) {
   const value = buffer.readUInt8(offset);
 
   return { value, offset: offset + 1 };
@@ -59,7 +71,7 @@ function readBytes(buffer: Buffer, length: number, offset = 0) {
 }
 
 function readBoolean(buffer: Buffer, offset = 0) {
-  const value = buffer.readUInt8(offset) !== 0;
+  const value = buffer.readInt8(offset) !== 0;
 
   return { value, offset: offset + 1 };
 }
@@ -95,7 +107,20 @@ function writeLong(value: bigint) {
   return buffer;
 }
 
+function writeUnsignedLong(value: bigint) {
+  const buffer = Buffer.alloc(8);
+  buffer.writeBigUInt64BE(value, 0);
+
+  return buffer;
+}
+
 function writeByte(value: number) {
+  const buffer = Buffer.alloc(1);
+  buffer.writeInt8(value, 0);
+  return buffer;
+}
+
+function writeUnsignedByte(value: number) {
   const buffer = Buffer.alloc(1);
   buffer.writeUInt8(value, 0);
   return buffer;
@@ -116,7 +141,7 @@ function writeUUID(value: UUID) {
 
 function writeBoolean(value: boolean) {
   const buffer = Buffer.alloc(1);
-  buffer.writeUInt8(value ? 1 : 0, 0);
+  buffer.writeInt8(value ? 1 : 0, 0);
   return buffer;
 }
 
@@ -124,15 +149,19 @@ export const bitUtils = {
   readVarInt,
   readShort,
   readLong,
+  readUnsignedLong,
   readString,
   readUUID,
   readByte,
+  readUnsignedByte,
   readBytes,
   readBoolean,
   writeVarInt,
   writeShort,
   writeLong,
+  writeUnsignedLong,
   writeByte,
+  writeUnsignedByte,
   writeString,
   writeUUID,
   writeBoolean,
