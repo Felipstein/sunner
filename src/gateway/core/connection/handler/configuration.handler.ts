@@ -1,9 +1,18 @@
+import crypto from 'node:crypto';
+import fs from 'node:fs';
+
 import chalk from 'chalk';
 
 import { Connection } from '..';
+import { GameMode } from '../../../../shared/game-mode';
+import { Identifier } from '../../../../shared/value-objects/identifier';
+import { worldDir } from '../../../../shared/worldDir';
 import { ConnectionState } from '../../../@types/connection-state';
+import { entityIDsManager } from '../../../entity-ids-manager';
 import { ClientInformationPacket } from '../../../packets/client-information.packet';
 import { FinishConfigurationPacket } from '../../../packets/finish-configuration.packet';
+import { LoginPacket } from '../../../packets/login.packet';
+import { getSeed } from '../../../utils/get-seed';
 import { UnknownPacket } from '../../unknown-packet';
 
 import { ConnectionHandler } from '.';
@@ -44,6 +53,38 @@ export class ConfigurationConnectionHandler extends ConnectionHandler {
 
         this.connection.changeState(ConnectionState.PLAY);
 
+        const levelDatContent = fs.readFileSync(`${worldDir}/level.dat`);
+        getSeed(levelDatContent).then((seed) => {
+          const hash = crypto.createHash('sha256').update(seed.toString()).digest();
+          const first8Bytes = hash.subarray(0, 8);
+          const hashedSeed = first8Bytes.readBigInt64BE();
+
+          const entityID = entityIDsManager.generateEntityId();
+
+          const loginPacket = new LoginPacket({
+            entityID,
+            isHardcore: false,
+            dimensionNames: [new Identifier('overworld')],
+            maxPlayers: 0,
+            viewDistance: 8,
+            simulationDistance: 8,
+            reducedDebugInfo: false,
+            enableRespawnScreen: true,
+            doLimitedCrafting: false,
+            dimensionType: new Identifier('overworld'),
+            dimensionName: new Identifier('world'),
+            hashedSeed,
+            gameMode: GameMode.SURVIVAL,
+            previousGameMode: -1,
+            isDebug: false,
+            isFlat: false,
+            hasDeathLocation: false,
+            portalCooldown: 0,
+          });
+
+          this.reply(loginPacket);
+        });
+
         // const seed = fs.readFileSync(`${worldDir}/level.dat`, 'utf-8');
 
         // const hash = crypto.createHash('sha256');
@@ -57,10 +98,6 @@ export class ConfigurationConnectionHandler extends ConnectionHandler {
         //   }
         //   return long;
         // }
-
-        // console.log('full', convertToLong(hashBytes));
-        // console.log('first 8', convertToLong(hashBytes.subarray(0, 8)));
-        // console.log('bitUtils', bitUtils.readLong(hashBytes).value);
 
         // const respawnPacket = new RespawnPacket({
         //   dimensionType: 'minecraft:overworld',
