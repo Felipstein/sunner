@@ -1,34 +1,52 @@
+import { GameMode } from '../../shared/game-mode';
+import { Identifier } from '../../shared/value-objects/identifier';
 import { Packet } from '../core/packet';
 import { UnknownPacket } from '../core/unknown-packet';
 import { bitUtils } from '../utils/bit';
 
-interface RespawnBuilder {
-  dimensionType: string;
-  dimensionName: string;
+type RespawnBuilderBase = {
+  dimensionType: Identifier;
+  dimensionName: Identifier;
   hashedSeed: bigint;
-  gameMode: number;
-  previousGameMode: number;
+  gameMode: GameMode;
+  previousGameMode: GameMode | -1;
   isDebug: boolean;
   isFlat: boolean;
-  hasDeathLocation: boolean;
-  deathDimensionName: string | null;
-  deathLocation: number | null;
   portalCooldown: number;
   dataKept: number;
-}
+};
+
+type RespawnBuilderDeathLocation =
+  | {
+      hasDeathLocation: boolean;
+      deathDimensionName?: Identifier | null;
+      deathLocation?: number | null;
+    }
+  | {
+      hasDeathLocation: true;
+      deathDimensionName: Identifier;
+      deathLocation: number;
+    }
+  | {
+      hasDeathLocation: false;
+      deathDimensionName?: null;
+      deathLocation?: null;
+    };
+
+type RespawnBuilder = RespawnBuilderBase & RespawnBuilderDeathLocation;
 
 export class RespawnPacket extends Packet {
   static readonly PACKET_ID = 0x45;
 
-  readonly dimensionType: string;
-  readonly dimensionName: string;
+  readonly dimensionType: Identifier;
+  readonly dimensionName: Identifier;
   readonly hashedSeed: bigint;
-  readonly gameMode: number;
-  readonly previousGameMode: number;
+  readonly gameMode: GameMode;
+  readonly previousGameMode: GameMode | -1;
   readonly isDebug: boolean;
   readonly isFlat: boolean;
   readonly hasDeathLocation: boolean;
-  readonly deathDimensionName: string | null;
+  readonly deathDimensionName: Identifier | null;
   readonly deathLocation: number | null;
   readonly portalCooldown: number;
   readonly dataKept: number;
@@ -44,15 +62,15 @@ export class RespawnPacket extends Packet {
     this.isDebug = builder.isDebug;
     this.isFlat = builder.isFlat;
     this.hasDeathLocation = builder.hasDeathLocation;
-    this.deathDimensionName = builder.deathDimensionName;
-    this.deathLocation = builder.deathLocation;
+    this.deathDimensionName = builder.deathDimensionName ?? null;
+    this.deathLocation = builder.deathLocation ?? null;
     this.portalCooldown = builder.portalCooldown;
     this.dataKept = builder.dataKept;
   }
 
   protected override dataToBuffer() {
-    const bufferedDimensionType = bitUtils.writeString(this.dimensionType);
-    const bufferedDimensionName = bitUtils.writeString(this.dimensionName);
+    const bufferedDimensionType = bitUtils.writeString(this.dimensionType.toString());
+    const bufferedDimensionName = bitUtils.writeString(this.dimensionName.toString());
     const bufferedHashedSeed = bitUtils.writeLong(this.hashedSeed);
     const bufferedGameMode = bitUtils.writeUnsignedByte(this.gameMode);
     const bufferedPreviousGameMode = bitUtils.writeByte(this.previousGameMode);
@@ -61,7 +79,7 @@ export class RespawnPacket extends Packet {
     const bufferedHasDeathLocation = bitUtils.writeBoolean(this.hasDeathLocation);
     const bufferedDeathDimensionName =
       this.deathDimensionName !== null
-        ? bitUtils.writeString(this.deathDimensionName)
+        ? bitUtils.writeString(this.deathDimensionName.toString())
         : Buffer.alloc(0);
     const bufferedDeathLocation =
       this.deathLocation !== null ? bitUtils.writeVarInt(this.deathLocation) : Buffer.alloc(0);
@@ -93,16 +111,18 @@ export class RespawnPacket extends Packet {
       );
     }
 
-    const dimensionType = bufferIterator.readString();
-    const dimensionName = bufferIterator.readString();
+    const dimensionType = new Identifier(bufferIterator.readString());
+    const dimensionName = new Identifier(bufferIterator.readString());
     const hashedSeed = bufferIterator.readUnsignedLong();
     const gameMode = bufferIterator.readUnsignedByte();
     const previousGameMode = bufferIterator.readByte();
     const isDebug = bufferIterator.readBoolean();
     const isFlat = bufferIterator.readBoolean();
     const hasDeathLocation = bufferIterator.readBoolean();
-    const deathDimensionName = bufferIterator.readString();
-    const deathLocation = bufferIterator.readVarInt();
+    const deathDimensionName = hasDeathLocation
+      ? new Identifier(bufferIterator.readString())
+      : null;
+    const deathLocation = hasDeathLocation ? bufferIterator.readVarInt() : null;
     const portalCooldown = bufferIterator.readVarInt();
     const dataKept = bufferIterator.readByte();
 
