@@ -1,5 +1,4 @@
 import * as net from 'node:net';
-import path from 'node:path';
 
 import chalk from 'chalk';
 
@@ -8,8 +7,6 @@ import { Connection } from './gateway/core/connection';
 import { UnknownPacket } from './gateway/core/unknown-packet';
 import { EncryptionAuthenticationService } from './gateway/services/encryption-authentication';
 import { decompressPacket } from './gateway/utils/decompress-packet';
-
-export const worldDir = path.resolve('tmp', 'saves', 'world');
 
 const server = net.createServer();
 export const serverKeys = EncryptionAuthenticationService.generateKeyPair();

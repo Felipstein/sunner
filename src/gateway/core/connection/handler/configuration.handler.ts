@@ -43,6 +43,40 @@ export class ConfigurationConnectionHandler extends ConnectionHandler {
         );
 
         this.connection.changeState(ConnectionState.PLAY);
+
+        // const seed = fs.readFileSync(`${worldDir}/level.dat`, 'utf-8');
+
+        // const hash = crypto.createHash('sha256');
+        // hash.update(seed);
+        // const hashBytes = hash.digest();
+
+        // function convertToLong(bytes: Buffer) {
+        //   let long = 0;
+        //   for (let i = 0; i < bytes.length; i++) {
+        //     long = (long << 8) + bytes[i];
+        //   }
+        //   return long;
+        // }
+
+        // console.log('full', convertToLong(hashBytes));
+        // console.log('first 8', convertToLong(hashBytes.subarray(0, 8)));
+        // console.log('bitUtils', bitUtils.readLong(hashBytes).value);
+
+        // const respawnPacket = new RespawnPacket({
+        //   dimensionType: 'minecraft:overworld',
+        //   dimensionName: 'world',
+        //   hashedSeed: BigInt(0),
+        //   gameMode: 0,
+        //   previousGameMode: -1,
+        //   isDebug: false,
+        //   isFlat: false,
+        //   hasDeathLocation: false,
+        //   deathDimensionName: null,
+        //   deathLocation: null,
+        //   portalCooldown: 0,
+        //   dataKept: 0x01,
+        // });
+        // this.reply(respawnPacket);
         break;
       }
       default: {
