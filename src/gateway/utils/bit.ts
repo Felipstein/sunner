@@ -16,6 +16,12 @@ function readVarInt(buffer: Buffer, offset = 0) {
   return { value: result, offset };
 }
 
+function readInt(buffer: Buffer, offset = 0) {
+  const value = buffer.readInt32BE(offset);
+
+  return { value, offset: offset + 4 };
+}
+
 function readShort(buffer: Buffer, offset = 0) {
   const value = buffer.readInt16BE(offset);
 
@@ -93,6 +99,13 @@ function writeVarInt(value: number) {
   return Buffer.from(bytes);
 }
 
+function writeInt(value: number) {
+  const buffer = Buffer.alloc(4);
+  buffer.writeInt32BE(value, 0);
+
+  return buffer;
+}
+
 function writeShort(value: number) {
   const buffer = Buffer.alloc(2);
   buffer.writeInt16BE(value, 0);
@@ -134,7 +147,7 @@ function writeString(value: string, encoding: BufferEncoding = 'utf-8') {
 }
 
 function writeUUID(value: UUID) {
-  const cleanedUUID = value.value.replace(/-/g, '');
+  const cleanedUUID = value.toString().replace(/-/g, '');
   const buffer = Buffer.from(cleanedUUID, 'hex');
   return buffer;
 }
@@ -147,6 +160,7 @@ function writeBoolean(value: boolean) {
 
 export const bitUtils = {
   readVarInt,
+  readInt,
   readShort,
   readLong,
   readUnsignedLong,
@@ -157,6 +171,7 @@ export const bitUtils = {
   readBytes,
   readBoolean,
   writeVarInt,
+  writeInt,
   writeShort,
   writeLong,
   writeUnsignedLong,

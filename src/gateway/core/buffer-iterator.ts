@@ -26,6 +26,14 @@ export class BufferIterator {
     return value;
   }
 
+  readInt() {
+    const { value, offset } = bitUtils.readInt(this._buffer, this.currentOffset);
+
+    this._prevOffset = this.currentOffset;
+    this.currentOffset = offset;
+    return value;
+  }
+
   readShort() {
     const { value, offset } = bitUtils.readShort(this._buffer, this.currentOffset);
 
