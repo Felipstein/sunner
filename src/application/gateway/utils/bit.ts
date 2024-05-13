@@ -1,3 +1,4 @@
+import { PlayerAbilities } from '@domain/value-objects/player-abilities';
 import { Position } from '@domain/value-objects/position';
 import { UUID } from '@domain/value-objects/uuid';
 
@@ -110,6 +111,20 @@ function readPosition(buffer: Buffer, offset = 0) {
   return { value: new Position(x, y, z), offset: offset + 8 };
 }
 
+function readPlayerAbilities(buffer: Buffer, offset = 0) {
+  const flags = buffer.readUint8(offset);
+
+  const invulnerable = (flags & 0x01) === 0x01;
+  const flying = (flags & 0x02) === 0x02;
+  const allowFlying = (flags & 0x04) === 0x04;
+  const creativeMode = (flags & 0x08) === 0x08;
+
+  return {
+    value: new PlayerAbilities({ invulnerable, flying, allowFlying, creativeMode }),
+    offset: offset + 1,
+  };
+}
+
 function writeVarInt(value: number) {
   const bytes: number[] = [];
 
@@ -205,6 +220,17 @@ function writePosition(position: Position) {
   return buffer;
 }
 
+function writePlayerAbilities(playerAbilities: PlayerAbilities) {
+  let flags = 0;
+
+  if (playerAbilities.invulnerable) flags |= 0x01;
+  if (playerAbilities.flying) flags |= 0x02;
+  if (playerAbilities.allowFlying) flags |= 0x04;
+  if (playerAbilities.creativeMode) flags |= 0x08;
+
+  return writeByte(flags);
+}
+
 export const bitUtils = {
   readVarInt,
   readInt,
@@ -219,6 +245,7 @@ export const bitUtils = {
   readBytes,
   readBoolean,
   readPosition,
+  readPlayerAbilities,
   writeVarInt,
   writeInt,
   writeShort,
@@ -231,4 +258,5 @@ export const bitUtils = {
   writeUUID,
   writeBoolean,
   writePosition,
+  writePlayerAbilities,
 };

@@ -5,6 +5,7 @@ import chalk from 'chalk';
 import { worldDir } from '@application/shared/worldDir';
 import { GameMode } from '@domain/game-mode';
 import { Identifier } from '@domain/value-objects/identifier';
+import { PlayerAbilities } from '@domain/value-objects/player-abilities';
 import { Position } from '@domain/value-objects/position';
 import { ConnectionState } from '@gateway/@types/connection-state';
 import { CoreServer } from '@gateway/core/core-server';
@@ -12,6 +13,7 @@ import { UnknownPacket } from '@gateway/core/unknown-packet';
 import { ClientInformationPacket } from '@gateway/packets/client-information.packet';
 import { FinishConfigurationPacket } from '@gateway/packets/finish-configuration.packet';
 import { LoginPacket } from '@gateway/packets/login.packet';
+import { PlayerAbilitiesClientboundPacket } from '@gateway/packets/player-abilities-clientbound.packet';
 import { SetDefaultSpawnPositionPacket } from '@gateway/packets/set-default-spawn-position.packet';
 import { getFirst8BytesOfSeed } from '@gateway/utils/get-first-8-bytes-of-seed';
 import { getSeed } from '@gateway/utils/get-seed';
@@ -98,6 +100,16 @@ export class ConfigurationConnectionHandler extends ConnectionHandler {
 
     const spawnPositionPacket = new SetDefaultSpawnPositionPacket(new Position(0, 0, 0), 0);
     this.reply(spawnPositionPacket);
+
+    const playerAbilitiesPacket = new PlayerAbilitiesClientboundPacket(
+      new PlayerAbilities({
+        invulnerable: false,
+        flying: false,
+        allowFlying: false,
+        creativeMode: false,
+      }),
+    );
+    this.reply(playerAbilitiesPacket);
 
     // const seed = fs.readFileSync(`${worldDir}/level.dat`, 'utf-8');
 
