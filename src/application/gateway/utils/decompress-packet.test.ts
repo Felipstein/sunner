@@ -1,3 +1,5 @@
+import '../../../env';
+
 import { UUID } from '../../domain/value-objects/uuid';
 import { UnknownPacket } from '../core/unknown-packet';
 import { ProtocolVersion } from '../protocol-version';
