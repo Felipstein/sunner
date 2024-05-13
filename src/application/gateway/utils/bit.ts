@@ -40,6 +40,12 @@ function readUnsignedLong(buffer: Buffer, offset = 0) {
   return { value, offset: offset + 8 };
 }
 
+function readFloat(buffer: Buffer, offset = 0) {
+  const value = buffer.readFloatBE(offset);
+
+  return { value, offset: offset + 4 };
+}
+
 function readString(buffer: Buffer, offset = 0, encoding: BufferEncoding = 'utf-8') {
   const lengthInfo = readVarInt(buffer, offset);
   const stringLength = lengthInfo.value;
@@ -139,6 +145,12 @@ function writeUnsignedByte(value: number) {
   return buffer;
 }
 
+function writeFloat(value: number) {
+  const buffer = Buffer.alloc(4);
+  buffer.writeFloatBE(value, 0);
+  return buffer;
+}
+
 function writeString(value: string, encoding: BufferEncoding = 'utf-8') {
   const buffer = Buffer.from(value, encoding);
   const length = writeVarInt(buffer.length);
@@ -164,6 +176,7 @@ export const bitUtils = {
   readShort,
   readLong,
   readUnsignedLong,
+  readFloat,
   readString,
   readUUID,
   readByte,
@@ -177,6 +190,7 @@ export const bitUtils = {
   writeUnsignedLong,
   writeByte,
   writeUnsignedByte,
+  writeFloat,
   writeString,
   writeUUID,
   writeBoolean,
