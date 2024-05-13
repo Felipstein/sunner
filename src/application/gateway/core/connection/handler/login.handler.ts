@@ -1,6 +1,7 @@
 import chalk from 'chalk';
 
 import { Connection } from '..';
+import { Logger } from '../../../../infra/logger';
 import { ConnectionState } from '../../../@types/connection-state';
 import { EncryptionRequestPacket } from '../../../packets/encryption-request.packet';
 import { EncryptionResponsePacket } from '../../../packets/encryption-response.packet';
@@ -12,6 +13,8 @@ import { UnknownPacket } from '../../unknown-packet';
 import { EncryptionStage } from '../encryption-stage';
 
 import { ConnectionHandler } from '.';
+
+const log = Logger.init('LOGIN_CONNECTION_HANDLER');
 
 export class LoginConnectionHandler extends ConnectionHandler {
   constructor(connection: Connection) {
@@ -38,7 +41,7 @@ export class LoginConnectionHandler extends ConnectionHandler {
         break;
       }
       default: {
-        console.log(`Unknown packet from ${this.constructor.name} ${unknownPacket.hexId()}`);
+        log.warn(`Unknown packet from ${this.constructor.name} ${unknownPacket.hexId()}`);
       }
     }
   }
@@ -73,7 +76,7 @@ export class LoginConnectionHandler extends ConnectionHandler {
       encryptionResponsePacket.sharedSecret,
     );
 
-    console.info(chalk.blue('Enabling cryptography.'));
+    log.debug(chalk.blue('Enabling cryptography.'));
 
     this.connection.encryptionStage.enableEncryption(sharedSecret);
 
@@ -103,7 +106,7 @@ export class LoginConnectionHandler extends ConnectionHandler {
         throw new Error('invalid_verify_token');
       }
 
-      console.info(
+      log.debug(
         chalk.blue(
           `User ${encryptionStage.username} passed the encryption verification. (UUID: ${encryptionStage.playerUUID.toString()})`,
         ),
@@ -120,7 +123,7 @@ export class LoginConnectionHandler extends ConnectionHandler {
         throw error;
       }
 
-      console.log(chalk.red(error));
+      log.error(chalk.red(error));
 
       throw new Error('Invalid token encrypted.');
     }

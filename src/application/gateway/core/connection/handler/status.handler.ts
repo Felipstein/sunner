@@ -1,4 +1,5 @@
 import { Connection } from '..';
+import { Logger } from '../../../../infra/logger';
 import { ConnectionState } from '../../../@types/connection-state';
 import { PingRequestPacket } from '../../../packets/ping-request.packet';
 import { PingResponsePacket } from '../../../packets/ping-response.packet';
@@ -7,6 +8,8 @@ import { getMCVersionByProtocol, ProtocolVersion } from '../../../protocol-versi
 import { UnknownPacket } from '../../unknown-packet';
 
 import { ConnectionHandler } from '.';
+
+const log = Logger.init('STATUS_CONNECTION_HANDLER');
 
 export class StatusConnectionHandler extends ConnectionHandler {
   constructor(connection: Connection) {
@@ -27,7 +30,7 @@ export class StatusConnectionHandler extends ConnectionHandler {
         break;
       }
       default: {
-        console.log(`Unknown packet from ${this.constructor.name} ${unknownPacket.hexId()}`);
+        log.warn(`Unknown packet from ${this.constructor.name} ${unknownPacket.hexId()}`);
       }
     }
   }

@@ -1,7 +1,5 @@
 import net from 'node:net';
 
-import chalk from 'chalk';
-
 import { Connection } from '../application/gateway/core/connection';
 import { CoreServer } from '../application/gateway/core/core-server';
 
@@ -19,19 +17,13 @@ export class NodeCoreServer extends CoreServer {
     this.netServer.on('connection', (socket) => this.onConnect(new Connection(socket)));
   }
 
-  override init(): Promise<void> {
+  override init(): Promise<{ hostname: string; port: number }> {
     return new Promise((resolve) => {
       const { port, hostname } = serverConfig;
 
       this.netServer.listen(port, hostname);
       this.netServer.once('listening', () => {
-        console.info(
-          chalk.gray('Server is running on'),
-          chalk.cyan.underline(`${hostname}:${port}`),
-          '\n',
-        );
-
-        resolve();
+        resolve({ hostname, port });
       });
     });
   }

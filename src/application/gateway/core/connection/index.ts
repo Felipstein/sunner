@@ -2,6 +2,7 @@ import type { Socket } from 'net';
 
 import chalk from 'chalk';
 
+import { Logger } from '../../../infra/logger';
 import { ConnectionState } from '../../@types/connection-state';
 import { Packet } from '../packet';
 
@@ -12,6 +13,8 @@ import { HandshakingConnectionHandler } from './handler/handshaking.handler';
 import { LoginConnectionHandler } from './handler/login.handler';
 import { PlayConnectionHandler } from './handler/play.handler';
 import { StatusConnectionHandler } from './handler/status.handler';
+
+const log = Logger.init();
 
 export class Connection {
   private _handler: ConnectionHandler;
@@ -65,7 +68,7 @@ export class Connection {
   sendPacket(packet: Packet) {
     const encryption = this.encryptionStage?.security;
 
-    console.info(
+    log.debugPacket(
       chalk.gray(`->> Sent packet${encryption ? chalk.blue('*') : '\t'}\t`),
       `Packet ID: ${chalk.yellow(packet.hexId())}`,
       '-',

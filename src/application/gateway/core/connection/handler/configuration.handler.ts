@@ -6,6 +6,7 @@ import chalk from 'chalk';
 import { Connection } from '..';
 import { GameMode } from '../../../../domain/game-mode';
 import { Identifier } from '../../../../domain/value-objects/identifier';
+import { Logger } from '../../../../infra/logger';
 import { worldDir } from '../../../../shared/worldDir';
 import { ConnectionState } from '../../../@types/connection-state';
 import { ClientInformationPacket } from '../../../packets/client-information.packet';
@@ -15,6 +16,8 @@ import { getSeed } from '../../../utils/get-seed';
 import { UnknownPacket } from '../../unknown-packet';
 
 import { ConnectionHandler } from '.';
+
+const log = Logger.init('CONFIGURATION_CONNECTION_HANDLER');
 
 export class ConfigurationConnectionHandler extends ConnectionHandler {
   constructor(connection: Connection) {
@@ -26,7 +29,7 @@ export class ConfigurationConnectionHandler extends ConnectionHandler {
       case 0x00: {
         const clientInformationPacket = ClientInformationPacket.fromUnknownPacket(unknownPacket);
 
-        console.log(
+        log.debug(
           chalk.blue(
             `User ${this.connection.encryptionStage!.username} (${clientInformationPacket.locale}) send client information. Sending Finish Configuration Packet.`,
           ),
@@ -44,7 +47,7 @@ export class ConfigurationConnectionHandler extends ConnectionHandler {
       case 0x02: {
         // Acknowledge Finish Configuration Packet
 
-        console.log(
+        log.debug(
           chalk.blue(
             `User ${this.connection.encryptionStage!.username} acknowledged configuration state, starting play state.`,
           ),
@@ -117,7 +120,7 @@ export class ConfigurationConnectionHandler extends ConnectionHandler {
         break;
       }
       default: {
-        console.log(`Unknown packet from ${this.constructor.name} ${unknownPacket.hexId()}`);
+        log.warn(`Unknown packet from ${this.constructor.name} ${unknownPacket.hexId()}`);
       }
     }
   }

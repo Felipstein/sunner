@@ -1,6 +1,9 @@
 import chalk from 'chalk';
 
+import { Logger } from '../../infra/logger';
 import { UnknownPacket } from '../core/unknown-packet';
+
+const log = Logger.init('DECOMPRESS_PACKET');
 
 type Callback = (decompressedPacket: UnknownPacket) => void;
 
@@ -23,7 +26,7 @@ export function decompressPacket(unknownPacket: UnknownPacket, callback?: Callba
         decompressedPackets.push(packet);
       }
     } else {
-      console.warn(
+      log.warn(
         chalk.yellow(
           `Packet (${packet.hexId()}) is compressed. Actually the code does not support this. The package is will be ignored.`,
         ),

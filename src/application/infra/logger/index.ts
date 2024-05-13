@@ -125,6 +125,11 @@ class Logger {
     });
   }
 
+  ln(repeat = 0) {
+    // eslint-disable-next-line no-console
+    console.info('\n'.repeat(repeat));
+  }
+
   private cleanupParams(params: any[]) {
     const content = params
       .map((param) => {

@@ -2,11 +2,15 @@ import { KeyPairSyncResult } from 'node:crypto';
 
 import chalk from 'chalk';
 
+import { Logger } from '../../infra/logger';
+import { loggers } from '../../infra/logger/constants';
 import { EncryptionAuthenticationService } from '../services/encryption-authentication';
 import { decompressPacket } from '../utils/decompress-packet';
 
 import { Connection } from './connection';
 import { UnknownPacket } from './unknown-packet';
+
+const log = Logger.init();
 
 export abstract class CoreServer {
   private static instance: CoreServer;
@@ -39,7 +43,7 @@ export abstract class CoreServer {
   }
 
   protected onError(error: Error) {
-    console.error(chalk.red(error));
+    loggers.server.fatal(error);
   }
 
   protected onConnect(connection: Connection) {
@@ -49,7 +53,7 @@ export abstract class CoreServer {
 
       const unknownPacket = UnknownPacket.fromBuffer(data);
 
-      console.info(
+      log.debugPacket(
         chalk.gray(`<<- Received packet${decipher ? chalk.blue('*') : ''}\t`),
         `Packet ID: ${chalk.yellow(unknownPacket.hexId())}`,
         '-',
@@ -64,7 +68,7 @@ export abstract class CoreServer {
 
       if (unknownPacket.compressed) {
         decompressPacket(unknownPacket, (decompressedPacket) => {
-          console.info(
+          log.debugPacket(
             chalk.gray(`<<- Received packet${decipher ? chalk.blue('*') : ''}${chalk.red('*')}\t`),
             `Packet ID: ${chalk.yellow(unknownPacket.hexId())}`,
             '-',
@@ -83,7 +87,7 @@ export abstract class CoreServer {
     });
   }
 
-  abstract init(): Promise<void>;
+  abstract init(): Promise<{ hostname: string; port: number }>;
 
   static get singleton() {
     return this.instance;
