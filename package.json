@@ -7,14 +7,18 @@
     "node": ">=18"
   },
   "scripts": {
-    "dev": "tsx watch src/main.ts",
+    "dev": "cross-env NODE_ENV=development tsx watch src/main.ts",
+    "test": "jest",
+    "test:watch": "jest --watch",
     "typecheck": "tsc --noEmit",
     "lint": "eslint --ext .ts src",
-    "lint:fix": "eslint --ext .ts src --fix"
+    "lint:fix": "eslint --ext .ts src --fix",
+    "preinstall": "npx only-allow pnpm"
   },
   "dependencies": {
     "axios": "^1.6.8",
     "chalk": "4.1.2",
+    "cross-env": "^7.0.3",
     "dotenv": "^16.4.5",
     "lodash": "^4.17.21",
     "moment": "^2.30.1",
