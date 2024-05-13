@@ -28,12 +28,14 @@ try {
     ...envParsed,
   };
 
-  console.info('Environment variables loaded');
+  if (envParsed.NODE_ENV !== 'test') {
+    console.info('Environment variables loaded');
 
-  if (envParsed.LOGS.includes('debug') || envParsed.LOGS.includes('debug_packet')) {
-    const log = Logger.init();
-    log.debug(chalk.magenta('Debug mode enabled'));
-    log.debugPacket(chalk.magenta('Debug Packet Traffic mode enabled'));
+    if (envParsed.LOGS.includes('debug') || envParsed.LOGS.includes('debug_packet')) {
+      const log = Logger.init();
+      log.debug(chalk.magenta('Debug mode enabled'));
+      log.debugPacket(chalk.magenta('Debug Packet Traffic mode enabled'));
+    }
   }
 } catch (error: unknown) {
   if (error instanceof ZodError) {
