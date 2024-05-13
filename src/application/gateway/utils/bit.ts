@@ -1,3 +1,4 @@
+import { Position } from '@domain/value-objects/position';
 import { UUID } from '@domain/value-objects/uuid';
 
 function readVarInt(buffer: Buffer, offset = 0) {
@@ -88,6 +89,27 @@ function readBoolean(buffer: Buffer, offset = 0) {
   return { value, offset: offset + 1 };
 }
 
+function readPosition(buffer: Buffer, offset = 0) {
+  const positionValue = buffer.readBigInt64BE(offset);
+
+  let x = Number((positionValue >> 38n) & 0x3ffffffn);
+  let z = Number((positionValue >> 12n) & 0x3ffffffn);
+  let y = Number(positionValue & 0xfffn);
+
+  // Ajusta para números negativos em complemento de dois
+  if (x >= 0x2000000) {
+    x -= 0x4000000;
+  }
+  if (z >= 0x2000000) {
+    z -= 0x4000000;
+  }
+  if (y >= 0x800) {
+    y -= 0x1000;
+  }
+
+  return { value: new Position(x, y, z), offset: offset + 8 };
+}
+
 function writeVarInt(value: number) {
   const bytes: number[] = [];
 
@@ -170,6 +192,19 @@ function writeBoolean(value: boolean) {
   return buffer;
 }
 
+function writePosition(position: Position) {
+  const x = position.x & 0x3ffffff;
+  const z = position.z & 0x3ffffff;
+  const y = position.y & 0xfff;
+
+  const positionValue =
+    ((BigInt(x) & 0x3ffffffn) << 38n) | ((BigInt(z) & 0x3ffffffn) << 12n) | (BigInt(y) & 0xfffn);
+
+  const buffer = Buffer.alloc(8);
+  buffer.writeBigInt64BE(positionValue, 0);
+  return buffer;
+}
+
 export const bitUtils = {
   readVarInt,
   readInt,
@@ -183,6 +218,7 @@ export const bitUtils = {
   readUnsignedByte,
   readBytes,
   readBoolean,
+  readPosition,
   writeVarInt,
   writeInt,
   writeShort,
@@ -194,4 +230,5 @@ export const bitUtils = {
   writeString,
   writeUUID,
   writeBoolean,
+  writePosition,
 };

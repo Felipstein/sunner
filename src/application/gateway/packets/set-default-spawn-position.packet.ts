@@ -1,3 +1,4 @@
+import { Position } from '@domain/value-objects/position';
 import { Packet } from '@gateway/core/packet';
 import { UnknownPacket } from '@gateway/core/unknown-packet';
 import { bitUtils } from '@gateway/utils/bit';
@@ -6,14 +7,14 @@ export class SetDefaultSpawnPositionPacket extends Packet {
   static readonly PACKET_ID = 0x54;
 
   constructor(
-    readonly location: number,
+    readonly location: Position,
     readonly angle: number,
   ) {
     super(SetDefaultSpawnPositionPacket.PACKET_ID);
   }
 
   protected override dataToBuffer() {
-    const bufferedLocation = bitUtils.writeVarInt(this.location);
+    const bufferedLocation = bitUtils.writePosition(this.location);
     const bufferedAngle = bitUtils.writeFloat(this.angle);
 
     return [bufferedLocation, bufferedAngle];
@@ -28,7 +29,7 @@ export class SetDefaultSpawnPositionPacket extends Packet {
       );
     }
 
-    const location = bufferIterator.readVarInt();
+    const location = bufferIterator.readPosition();
     const angle = bufferIterator.readFloat();
 
     const packet = new SetDefaultSpawnPositionPacket(location, angle);

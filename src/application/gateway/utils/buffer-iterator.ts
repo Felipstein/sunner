@@ -121,4 +121,12 @@ export class BufferIterator {
     this.currentOffset = offset;
     return value;
   }
+
+  readPosition() {
+    const { value, offset } = bitUtils.readPosition(this._buffer, this.currentOffset);
+
+    this._prevOffset = this.currentOffset;
+    this.currentOffset = offset;
+    return value;
+  }
 }

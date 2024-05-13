@@ -5,6 +5,7 @@ import chalk from 'chalk';
 import { worldDir } from '@application/shared/worldDir';
 import { GameMode } from '@domain/game-mode';
 import { Identifier } from '@domain/value-objects/identifier';
+import { Position } from '@domain/value-objects/position';
 import { ConnectionState } from '@gateway/@types/connection-state';
 import { CoreServer } from '@gateway/core/core-server';
 import { UnknownPacket } from '@gateway/core/unknown-packet';
@@ -95,7 +96,7 @@ export class ConfigurationConnectionHandler extends ConnectionHandler {
     });
     this.reply(loginPacket);
 
-    const spawnPositionPacket = new SetDefaultSpawnPositionPacket(0, 0);
+    const spawnPositionPacket = new SetDefaultSpawnPositionPacket(new Position(0, 0, 0), 0);
     this.reply(spawnPositionPacket);
 
     // const seed = fs.readFileSync(`${worldDir}/level.dat`, 'utf-8');
