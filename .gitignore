@@ -2,3 +2,9 @@ node_modules
 
 tmp/saves/*
 !tmp/saves/.gitkeep
+
+tmp/logs/*
+!tmp/logs/.gitkeep
+
+tmp/crashes/*
+!tmp/crashes/.gitkeep
