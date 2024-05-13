@@ -3,17 +3,18 @@ import fs from 'node:fs';
 
 import chalk from 'chalk';
 
+import { worldDir } from '@application/shared/worldDir';
+import { GameMode } from '@domain/game-mode';
+import { Identifier } from '@domain/value-objects/identifier';
+import { ConnectionState } from '@gateway/@types/connection-state';
+import { UnknownPacket } from '@gateway/core/unknown-packet';
+import { ClientInformationPacket } from '@gateway/packets/client-information.packet';
+import { FinishConfigurationPacket } from '@gateway/packets/finish-configuration.packet';
+import { LoginPacket } from '@gateway/packets/login.packet';
+import { getSeed } from '@gateway/utils/get-seed';
+import { Logger } from '@infra/logger';
+
 import { Connection } from '..';
-import { GameMode } from '../../../../domain/game-mode';
-import { Identifier } from '../../../../domain/value-objects/identifier';
-import { Logger } from '../../../../infra/logger';
-import { worldDir } from '../../../../shared/worldDir';
-import { ConnectionState } from '../../../@types/connection-state';
-import { ClientInformationPacket } from '../../../packets/client-information.packet';
-import { FinishConfigurationPacket } from '../../../packets/finish-configuration.packet';
-import { LoginPacket } from '../../../packets/login.packet';
-import { getSeed } from '../../../utils/get-seed';
-import { UnknownPacket } from '../../unknown-packet';
 
 import { ConnectionHandler } from '.';
 

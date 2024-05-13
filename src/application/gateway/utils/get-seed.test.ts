@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { worldDir } from '../../shared/worldDir';
+import { worldDir } from '@application/shared/worldDir';
 
 import { getSeed } from './get-seed';
 

@@ -1,5 +1,5 @@
-import { Packet } from '../core/packet';
-import { UnknownPacket } from '../core/unknown-packet';
+import { Packet } from '@gateway/core/packet';
+import { UnknownPacket } from '@gateway/core/unknown-packet';
 
 export class StatusRequestPacket extends Packet {
   static readonly PACKET_ID = 0x00;

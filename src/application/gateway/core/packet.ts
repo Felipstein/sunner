@@ -1,6 +1,6 @@
-import { bitUtils } from '../utils/bit';
-import { BufferIterator } from '../utils/buffer-iterator';
-import { toHexString } from '../utils/to-hex-string';
+import { bitUtils } from '@gateway/utils/bit';
+import { BufferIterator } from '@gateway/utils/buffer-iterator';
+import { toHexString } from '@gateway/utils/to-hex-string';
 
 export abstract class Packet {
   protected lengthFromHeader = 0;

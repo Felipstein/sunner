@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 
-import { Logger } from '../../infra/logger';
-import { UnknownPacket } from '../core/unknown-packet';
+import { UnknownPacket } from '@gateway/core/unknown-packet';
+import { Logger } from '@infra/logger';
 
 const log = Logger.init('DECOMPRESS_PACKET');
 

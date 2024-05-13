@@ -1,6 +1,6 @@
 import crypto from 'node:crypto';
 
-import { UUID } from '../../../domain/value-objects/uuid';
+import { UUID } from '@domain/value-objects/uuid';
 
 import { CipherAndDecipher } from './cipher-and-decipher';
 

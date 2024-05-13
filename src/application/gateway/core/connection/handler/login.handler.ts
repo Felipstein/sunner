@@ -1,15 +1,16 @@
 import chalk from 'chalk';
 
+import { ConnectionState } from '@gateway/@types/connection-state';
+import { CoreServer } from '@gateway/core/core-server';
+import { UnknownPacket } from '@gateway/core/unknown-packet';
+import { EncryptionRequestPacket } from '@gateway/packets/encryption-request.packet';
+import { EncryptionResponsePacket } from '@gateway/packets/encryption-response.packet';
+import { LoginStartPacket } from '@gateway/packets/login-start.packet';
+import { LoginSuccessPacket } from '@gateway/packets/login-success.packet';
+import { EncryptionAuthenticationService } from '@gateway/services/encryption-authentication';
+import { Logger } from '@infra/logger';
+
 import { Connection } from '..';
-import { Logger } from '../../../../infra/logger';
-import { ConnectionState } from '../../../@types/connection-state';
-import { EncryptionRequestPacket } from '../../../packets/encryption-request.packet';
-import { EncryptionResponsePacket } from '../../../packets/encryption-response.packet';
-import { LoginStartPacket } from '../../../packets/login-start.packet';
-import { LoginSuccessPacket } from '../../../packets/login-success.packet';
-import { EncryptionAuthenticationService } from '../../../services/encryption-authentication';
-import { CoreServer } from '../../core-server';
-import { UnknownPacket } from '../../unknown-packet';
 import { EncryptionStage } from '../encryption-stage';
 
 import { ConnectionHandler } from '.';

@@ -2,10 +2,10 @@ import { KeyPairSyncResult } from 'node:crypto';
 
 import chalk from 'chalk';
 
-import { Logger } from '../../infra/logger';
-import { loggers } from '../../infra/logger/constants';
-import { EncryptionAuthenticationService } from '../services/encryption-authentication';
-import { decompressPacket } from '../utils/decompress-packet';
+import { EncryptionAuthenticationService } from '@gateway/services/encryption-authentication';
+import { decompressPacket } from '@gateway/utils/decompress-packet';
+import { Logger } from '@infra/logger';
+import { loggers } from '@infra/logger/constants';
 
 import { Connection } from './connection';
 import { UnknownPacket } from './unknown-packet';

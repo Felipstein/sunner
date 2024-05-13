@@ -1,8 +1,8 @@
-import '../../../env';
+import '@env';
 
-import { UUID } from '../../domain/value-objects/uuid';
-import { UnknownPacket } from '../core/unknown-packet';
-import { ProtocolVersion } from '../protocol-version';
+import { UUID } from '@domain/value-objects/uuid';
+import { UnknownPacket } from '@gateway/core/unknown-packet';
+import { ProtocolVersion } from '@gateway/protocol-version';
 
 import { bitUtils } from './bit';
 import { decompressPacket } from './decompress-packet';

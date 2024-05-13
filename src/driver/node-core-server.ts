@@ -1,7 +1,7 @@
 import net from 'node:net';
 
-import { Connection } from '../application/gateway/core/connection';
-import { CoreServer } from '../application/gateway/core/core-server';
+import { Connection } from '@gateway/core/connection';
+import { CoreServer } from '@gateway/core/core-server';
 
 import { serverConfig } from './server-config';
 

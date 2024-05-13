@@ -1,7 +1,7 @@
-import { JSONTextComponent } from '../../domain/json-text-component';
-import { Packet } from '../core/packet';
-import { UnknownPacket } from '../core/unknown-packet';
-import { bitUtils } from '../utils/bit';
+import { JSONTextComponent } from '@domain/json-text-component';
+import { Packet } from '@gateway/core/packet';
+import { UnknownPacket } from '@gateway/core/unknown-packet';
+import { bitUtils } from '@gateway/utils/bit';
 
 export class DisconnectLoginPacket extends Packet {
   static readonly PACKET_ID = 0x00;

@@ -1,4 +1,4 @@
-import { UUID } from '../../domain/value-objects/uuid';
+import { UUID } from '@domain/value-objects/uuid';
 
 function readVarInt(buffer: Buffer, offset = 0) {
   let numRead = 0;

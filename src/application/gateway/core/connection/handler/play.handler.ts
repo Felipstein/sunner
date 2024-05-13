@@ -1,7 +1,8 @@
+import { ConnectionState } from '@gateway/@types/connection-state';
+import { UnknownPacket } from '@gateway/core/unknown-packet';
+import { Logger } from '@infra/logger';
+
 import { Connection } from '..';
-import { Logger } from '../../../../infra/logger';
-import { ConnectionState } from '../../../@types/connection-state';
-import { UnknownPacket } from '../../unknown-packet';
 
 import { ConnectionHandler } from '.';
 

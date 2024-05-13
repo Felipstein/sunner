@@ -5,8 +5,8 @@ import 'dotenv/config';
 import chalk from 'chalk';
 import z, { ZodError } from 'zod';
 
-import { Logger } from './application/infra/logger';
-import { Level } from './application/infra/logger/levels';
+import { Logger } from '@infra/logger';
+import { Level } from '@infra/logger/levels';
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']),

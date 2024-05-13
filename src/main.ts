@@ -1,10 +1,10 @@
-import './env';
+import '@env';
 
 import chalk from 'chalk';
 
-import { CoreServer } from './application/gateway/core/core-server';
-import { loggers } from './application/infra/logger/constants';
-import { NodeCoreServer } from './driver/node-core-server';
+import { NodeCoreServer } from '@driver/node-core-server';
+import { CoreServer } from '@gateway/core/core-server';
+import { loggers } from '@infra/logger/constants';
 
 const coreServer: CoreServer = new NodeCoreServer();
 

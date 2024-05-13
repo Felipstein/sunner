@@ -1,11 +1,12 @@
+import { ConnectionState } from '@gateway/@types/connection-state';
+import { UnknownPacket } from '@gateway/core/unknown-packet';
+import { PingRequestPacket } from '@gateway/packets/ping-request.packet';
+import { PingResponsePacket } from '@gateway/packets/ping-response.packet';
+import { StatusResponsePacket } from '@gateway/packets/status-response.packet';
+import { ProtocolVersion, getMCVersionByProtocol } from '@gateway/protocol-version';
+import { Logger } from '@infra/logger';
+
 import { Connection } from '..';
-import { Logger } from '../../../../infra/logger';
-import { ConnectionState } from '../../../@types/connection-state';
-import { PingRequestPacket } from '../../../packets/ping-request.packet';
-import { PingResponsePacket } from '../../../packets/ping-response.packet';
-import { StatusResponsePacket } from '../../../packets/status-response.packet';
-import { getMCVersionByProtocol, ProtocolVersion } from '../../../protocol-version';
-import { UnknownPacket } from '../../unknown-packet';
 
 import { ConnectionHandler } from '.';
 

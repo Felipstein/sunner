@@ -1,8 +1,8 @@
-import { GameMode } from '../../domain/game-mode';
-import { Identifier } from '../../domain/value-objects/identifier';
-import { Packet } from '../core/packet';
-import { UnknownPacket } from '../core/unknown-packet';
-import { bitUtils } from '../utils/bit';
+import { GameMode } from '@domain/game-mode';
+import { Identifier } from '@domain/value-objects/identifier';
+import { Packet } from '@gateway/core/packet';
+import { UnknownPacket } from '@gateway/core/unknown-packet';
+import { bitUtils } from '@gateway/utils/bit';
 
 type LoginBuilderBase = {
   entityID: number;

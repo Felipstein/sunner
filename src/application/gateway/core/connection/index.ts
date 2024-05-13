@@ -2,8 +2,9 @@ import type { Socket } from 'net';
 
 import chalk from 'chalk';
 
-import { Logger } from '../../../infra/logger';
-import { ConnectionState } from '../../@types/connection-state';
+import { ConnectionState } from '@gateway/@types/connection-state';
+import { Logger } from '@infra/logger';
+
 import { Packet } from '../packet';
 
 import { EncryptionStage } from './encryption-stage';

@@ -1,7 +1,8 @@
+import { ConnectionState } from '@gateway/@types/connection-state';
+import { Packet } from '@gateway/core/packet';
+import { UnknownPacket } from '@gateway/core/unknown-packet';
+
 import { Connection } from '..';
-import { ConnectionState } from '../../../@types/connection-state';
-import { Packet } from '../../packet';
-import { UnknownPacket } from '../../unknown-packet';
 
 export type Reply = (packet: Packet) => void;
 

@@ -1,4 +1,4 @@
-import { UUID } from '../../domain/value-objects/uuid';
+import { UUID } from '@domain/value-objects/uuid';
 
 import { bitUtils } from './bit';
 
