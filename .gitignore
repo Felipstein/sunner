@@ -8,3 +8,7 @@ tmp/logs/*
 
 tmp/crashes/*
 !tmp/crashes/.gitkeep
+
+.env
+.env.*
+!.env.example

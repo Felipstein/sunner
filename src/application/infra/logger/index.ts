@@ -77,6 +77,15 @@ class Logger {
   }
 
   log(level: Level, ...params: any[]) {
+    if (level.level === 'info' && !this.levels.info) return;
+    if (level.level === 'promise' && !this.levels.promise) return;
+    if (level.level === 'success' && !this.levels.success) return;
+    if (level.level === 'warn' && !this.levels.warn) return;
+    if (level.level === 'error' && !this.levels.error) return;
+    if (level.level === 'fatal' && !this.levels.fatal) return;
+    if (level.level === 'debug' && !this.levels.debug) return;
+    if (level.level === 'debug_packet' && !this.levels.debug_packet) return;
+
     const paramsMapped = params.map((param) => {
       let paramMapped = param;
 
@@ -195,28 +204,50 @@ class Logger {
         : [contextOrContexts];
 
     const defaultConfigMerged = _.merge({}, defaultConfig, config);
+
+    const defaultEnabledLogs = process.env.LOGS;
+    const defaultEnabledInfoLevel = defaultEnabledLogs.includes('info');
+    const defaultEnabledPromiseLevel = defaultEnabledLogs.includes('promise');
+    const defaultEnabledSuccessLevel = defaultEnabledLogs.includes('success');
+    const defaultEnabledWarnLevel = defaultEnabledLogs.includes('warn');
+    const defaultEnabledErrorLevel = defaultEnabledLogs.includes('error');
+    const defaultEnabledFatalLevel = defaultEnabledLogs.includes('fatal');
+    const defaultEnabledDebugLevel = defaultEnabledLogs.includes('debug');
+    const defaultEnabledDebugSocketLevel = defaultEnabledLogs.includes('debug_packet');
+
     const logger = new Logger(
       enabledLevels === 'all'
         ? {
-            info: true,
-            promise: true,
-            success: true,
-            warn: true,
-            error: true,
-            fatal: true,
-            debug: true,
-            debug_packet: true,
+            info: defaultEnabledInfoLevel,
+            promise: defaultEnabledPromiseLevel,
+            success: defaultEnabledSuccessLevel,
+            warn: defaultEnabledWarnLevel,
+            error: defaultEnabledErrorLevel,
+            fatal: defaultEnabledFatalLevel,
+            debug: defaultEnabledDebugLevel,
+            debug_packet: defaultEnabledDebugSocketLevel,
           }
         : {
-            info: enabledLevels?.info === undefined ? true : enabledLevels.info,
-            promise: enabledLevels?.promise === undefined ? true : enabledLevels.promise,
-            success: enabledLevels?.success === undefined ? true : enabledLevels.success,
-            warn: enabledLevels?.warn === undefined ? true : enabledLevels.warn,
-            error: enabledLevels?.error === undefined ? true : enabledLevels.error,
-            fatal: enabledLevels?.fatal === undefined ? true : enabledLevels.fatal,
-            debug: enabledLevels?.debug === undefined ? true : enabledLevels.debug,
+            info: enabledLevels?.info === undefined ? defaultEnabledInfoLevel : enabledLevels.info,
+            promise:
+              enabledLevels?.promise === undefined
+                ? defaultEnabledPromiseLevel
+                : enabledLevels.promise,
+            success:
+              enabledLevels?.success === undefined
+                ? defaultEnabledSuccessLevel
+                : enabledLevels.success,
+            warn: enabledLevels?.warn === undefined ? defaultEnabledWarnLevel : enabledLevels.warn,
+            error:
+              enabledLevels?.error === undefined ? defaultEnabledErrorLevel : enabledLevels.error,
+            fatal:
+              enabledLevels?.fatal === undefined ? defaultEnabledFatalLevel : enabledLevels.fatal,
+            debug:
+              enabledLevels?.debug === undefined ? defaultEnabledDebugLevel : enabledLevels.debug,
             debug_packet:
-              enabledLevels?.debug_packet === undefined ? true : enabledLevels.debug_packet,
+              enabledLevels?.debug_packet === undefined
+                ? defaultEnabledDebugSocketLevel
+                : enabledLevels.debug_packet,
           },
       defaultConfigMerged,
     );
