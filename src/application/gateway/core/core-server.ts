@@ -9,6 +9,8 @@ import { Connection } from './connection';
 import { UnknownPacket } from './unknown-packet';
 
 export abstract class CoreServer {
+  private static instance: CoreServer;
+
   private readonly entityIds = new Set<number>();
   private lastEntityId = 0;
 
@@ -16,6 +18,7 @@ export abstract class CoreServer {
 
   constructor() {
     this.encryptionKeys = EncryptionAuthenticationService.generateKeyPair();
+    CoreServer.instance = this;
   }
 
   generateEntityId() {
@@ -81,4 +84,8 @@ export abstract class CoreServer {
   }
 
   abstract init(): Promise<void>;
+
+  static get singleton() {
+    return this.instance;
+  }
 }

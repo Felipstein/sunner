@@ -1,13 +1,13 @@
 import chalk from 'chalk';
 
 import { Connection } from '..';
-import { coreServer } from '../../../../../main';
 import { ConnectionState } from '../../../@types/connection-state';
 import { EncryptionRequestPacket } from '../../../packets/encryption-request.packet';
 import { EncryptionResponsePacket } from '../../../packets/encryption-response.packet';
 import { LoginStartPacket } from '../../../packets/login-start.packet';
 import { LoginSuccessPacket } from '../../../packets/login-success.packet';
 import { EncryptionAuthenticationService } from '../../../services/encryption-authentication';
+import { CoreServer } from '../../core-server';
 import { UnknownPacket } from '../../unknown-packet';
 import { EncryptionStage } from '../encryption-stage';
 
@@ -45,7 +45,7 @@ export class LoginConnectionHandler extends ConnectionHandler {
 
   private sendEncryptionRequest(verifyToken: Buffer) {
     const encryptionRequestPacket = new EncryptionRequestPacket(
-      coreServer.encryptionKeys.publicKey,
+      CoreServer.singleton.encryptionKeys.publicKey,
       verifyToken,
     );
     this.reply(encryptionRequestPacket);
@@ -91,7 +91,7 @@ export class LoginConnectionHandler extends ConnectionHandler {
 
     try {
       const privateKeyPem = EncryptionAuthenticationService.convertDerToPem(
-        coreServer.encryptionKeys.privateKey,
+        CoreServer.singleton.encryptionKeys.privateKey,
         'private',
       );
 
