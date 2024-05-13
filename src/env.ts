@@ -17,6 +17,7 @@ const envSchema = z.object({
   LOGS: z
     .string({ required_error: 'Required, e.g: "info", "info,warn", etc...' })
     .transform((logs) => logs.split(',') as Level['level'][]),
+  STORE_LOGS: z.coerce.boolean().default(true),
 });
 
 try {

@@ -17,6 +17,7 @@ interface Config {
   autoStringifyObjectsColored: boolean;
   logsDir: string;
   crashesDir: string;
+  storeLogs: boolean;
 }
 
 const defaultConfig: Config = {
@@ -26,6 +27,7 @@ const defaultConfig: Config = {
   autoStringifyObjectsColored: true,
   logsDir: path.resolve('tmp', 'logs'),
   crashesDir: path.resolve('tmp', 'crashes'),
+  storeLogs: process.env.STORE_LOGS,
 };
 
 class Logger {
@@ -111,9 +113,18 @@ class Logger {
     const tags = `${this.timestamp()} ${this.prefix(level)}`;
     level.consoleFunction(tags, ...paramsMapped);
 
-    const content = this.cleanupParams(
-      level.level === 'fatal' ? paramsMapped : [tags, ...paramsMapped],
-    );
+    if (this.config.storeLogs) {
+      this.storeLogs(level, tags, params);
+    }
+  }
+
+  ln(repeat = 0) {
+    // eslint-disable-next-line no-console
+    console.info('\n'.repeat(repeat));
+  }
+
+  private storeLogs(level: Level, tags: string, params: any[]) {
+    const content = this.cleanupParams(level.level === 'fatal' ? params : [tags, ...params]);
 
     let logPath: string;
 
@@ -132,11 +143,6 @@ class Logger {
         console.error(chalk.red('An error occurred while save the log:'), error);
       }
     });
-  }
-
-  ln(repeat = 0) {
-    // eslint-disable-next-line no-console
-    console.info('\n'.repeat(repeat));
   }
 
   private cleanupParams(params: any[]) {
