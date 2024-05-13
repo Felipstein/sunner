@@ -173,37 +173,46 @@ class Logger {
   }
 
   private timestamp() {
-    const now = new Date();
-
-    const date = `${now.toLocaleDateString()}`;
-    let time = `${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
-
-    if (this.config.showMilliseconds) {
-      time += `.${now.getMilliseconds()}`;
-    }
-
-    return chalk.gray(`[${date} ${time}]`);
+    return chalk.gray(
+      `[${moment().format(this.config.showMilliseconds ? 'YYYY-MM-DD HH:mm:ss.SSS' : 'YYYY-MM-DD HH:mm:ss')}]`,
+    );
   }
 
   static init(
-    contextOrContexts: string[] | string = [],
-    enabledLevels: EnabledLevels | undefined = undefined,
+    contextOrContexts: string[] | string | null = [],
+    enabledLevels: EnabledLevels | 'all' = 'all',
     config: Partial<Config> | undefined = undefined,
   ) {
-    const contexts = Array.isArray(contextOrContexts) ? contextOrContexts : [contextOrContexts];
+    const contexts = Array.isArray(contextOrContexts)
+      ? contextOrContexts
+      : contextOrContexts === null
+        ? []
+        : [contextOrContexts];
 
     const defaultConfigMerged = _.merge({}, defaultConfig, config);
     const logger = new Logger(
-      {
-        info: enabledLevels?.info === undefined ? true : enabledLevels.info,
-        promise: enabledLevels?.promise === undefined ? true : enabledLevels.promise,
-        success: enabledLevels?.success === undefined ? true : enabledLevels.success,
-        warn: enabledLevels?.warn === undefined ? true : enabledLevels.warn,
-        error: enabledLevels?.error === undefined ? true : enabledLevels.error,
-        fatal: enabledLevels?.fatal === undefined ? true : enabledLevels.fatal,
-        debug: enabledLevels?.debug === undefined ? true : enabledLevels.debug,
-        debug_packet: enabledLevels?.debug_packet === undefined ? true : enabledLevels.debug_packet,
-      },
+      enabledLevels === 'all'
+        ? {
+            info: true,
+            promise: true,
+            success: true,
+            warn: true,
+            error: true,
+            fatal: true,
+            debug: true,
+            debug_packet: true,
+          }
+        : {
+            info: enabledLevels?.info === undefined ? true : enabledLevels.info,
+            promise: enabledLevels?.promise === undefined ? true : enabledLevels.promise,
+            success: enabledLevels?.success === undefined ? true : enabledLevels.success,
+            warn: enabledLevels?.warn === undefined ? true : enabledLevels.warn,
+            error: enabledLevels?.error === undefined ? true : enabledLevels.error,
+            fatal: enabledLevels?.fatal === undefined ? true : enabledLevels.fatal,
+            debug: enabledLevels?.debug === undefined ? true : enabledLevels.debug,
+            debug_packet:
+              enabledLevels?.debug_packet === undefined ? true : enabledLevels.debug_packet,
+          },
       defaultConfigMerged,
     );
     contexts.forEach((context) => logger.start(context));
@@ -215,5 +224,3 @@ class Logger {
 const log = Logger.init();
 
 export { log, Logger };
-
-log.success('eita');

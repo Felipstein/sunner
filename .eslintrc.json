@@ -38,6 +38,7 @@
     "no-restricted-syntax": "off",
     "no-use-before-define": "off",
     "no-control-regex": "off",
+    "no-nested-ternary": "off",
     "lines-between-class-members": "off",
     "class-methods-use-this": "off",
     "@typescript-eslint/no-redeclare": "error",
