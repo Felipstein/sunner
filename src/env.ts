@@ -9,6 +9,8 @@ import { Logger } from './application/infra/logger';
 import { Level } from './application/infra/logger/levels';
 
 const envSchema = z.object({
+  NODE_ENV: z.enum(['development', 'production', 'test']),
+
   HOSTNAME: z.string().default('127.0.0.1'),
   PORT: z.coerce.number().default(25565),
 
