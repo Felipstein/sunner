@@ -48,6 +48,12 @@ function readFloat(buffer: Buffer, offset = 0) {
   return { value, offset: offset + 4 };
 }
 
+function readDouble(buffer: Buffer, offset = 0) {
+  const value = buffer.readDoubleBE(offset);
+
+  return { value, offset: offset + 8 };
+}
+
 function readString(buffer: Buffer, offset = 0, encoding: BufferEncoding = 'utf-8') {
   const lengthInfo = readVarInt(buffer, offset);
   const stringLength = lengthInfo.value;
@@ -188,6 +194,12 @@ function writeFloat(value: number) {
   return buffer;
 }
 
+function writeDouble(value: number) {
+  const buffer = Buffer.alloc(8);
+  buffer.writeDoubleBE(value, 0);
+  return buffer;
+}
+
 function writeString(value: string, encoding: BufferEncoding = 'utf-8') {
   const buffer = Buffer.from(value, encoding);
   const length = writeVarInt(buffer.length);
@@ -238,6 +250,7 @@ export const bitUtils = {
   readLong,
   readUnsignedLong,
   readFloat,
+  readDouble,
   readString,
   readUUID,
   readByte,
@@ -254,6 +267,7 @@ export const bitUtils = {
   writeByte,
   writeUnsignedByte,
   writeFloat,
+  writeDouble,
   writeString,
   writeUUID,
   writeBoolean,

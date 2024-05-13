@@ -66,6 +66,14 @@ export class BufferIterator {
     return value;
   }
 
+  readDouble() {
+    const { value, offset } = bitUtils.readDouble(this._buffer, this.currentOffset);
+
+    this._prevOffset = this.currentOffset;
+    this.currentOffset = offset;
+    return value;
+  }
+
   readString() {
     const { value, offset } = bitUtils.readString(this._buffer, this.currentOffset);
 

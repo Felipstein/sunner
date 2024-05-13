@@ -15,6 +15,7 @@ import { FinishConfigurationPacket } from '@gateway/packets/finish-configuration
 import { LoginPacket } from '@gateway/packets/login.packet';
 import { PlayerAbilitiesClientboundPacket } from '@gateway/packets/player-abilities-clientbound.packet';
 import { SetDefaultSpawnPositionPacket } from '@gateway/packets/set-default-spawn-position.packet';
+import { SynchronizePlayerPositionPacket } from '@gateway/packets/synchronize-player-position.packet';
 import { getFirst8BytesOfSeed } from '@gateway/utils/get-first-8-bytes-of-seed';
 import { getSeed } from '@gateway/utils/get-seed';
 import { Logger } from '@infra/logger';
@@ -110,6 +111,23 @@ export class ConfigurationConnectionHandler extends ConnectionHandler {
       }),
     );
     this.reply(playerAbilitiesPacket);
+
+    const synchronizePlayerPositionPacket = new SynchronizePlayerPositionPacket({
+      x: 0,
+      y: 0,
+      z: 0,
+      yaw: 0,
+      pitch: 0,
+      flags: {
+        x: false,
+        y: false,
+        z: false,
+        y_rotation_pitch: false,
+        x_rotation_yaw: false,
+      },
+      teleportId: 0,
+    });
+    this.reply(synchronizePlayerPositionPacket);
 
     // const seed = fs.readFileSync(`${worldDir}/level.dat`, 'utf-8');
 
